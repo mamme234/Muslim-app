@@ -6,13 +6,7 @@ class PrayerModule {
     constructor() {
         this.prayerTimes = {};
         this.prayerNames = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-        this.prayerDisplayNames = {
-            fajr: 'Fajr',
-            dhuhr: 'Dhuhr',
-            asr: 'Asr',
-            maghrib: 'Maghrib',
-            isha: 'Isha'
-        };
+        this.prayerDisplayNames = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
         this.trackedPrayers = JSON.parse(localStorage.getItem('trackedPrayers') || '{}');
         this.init();
     }
@@ -28,28 +22,21 @@ class PrayerModule {
 
     async loadPrayerTimes() {
         try {
-            const response = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Mecca&country=Saudi%20Arabia&method=4');
-            const data = await response.json();
-            if (data.code === 200) {
-                const timings = data.data.timings;
+            const data = await API.prayer.getTimes({ city: 'Mecca', country: 'Saudi Arabia', method: 4 });
+            if (data.success) {
                 this.prayerTimes = {
-                    fajr: timings.Fajr,
-                    dhuhr: timings.Dhuhr,
-                    asr: timings.Asr,
-                    maghrib: timings.Maghrib,
-                    isha: timings.Isha
+                    fajr: data.data.fajr,
+                    dhuhr: data.data.dhuhr,
+                    asr: data.data.asr,
+                    maghrib: data.data.maghrib,
+                    isha: data.data.isha
                 };
             }
         } catch (error) {
             console.warn('Using fallback prayer times', error);
-            this.prayerTimes = {
-                fajr: '5:12 AM',
-                dhuhr: '12:34 PM',
-                asr: '3:45 PM',
-                maghrib: '6:20 PM',
-                isha: '7:56 PM'
-            };
+            this.prayerTimes = { fajr: '5:12 AM', dhuhr: '12:34 PM', asr: '3:45 PM', maghrib: '6:20 PM', isha: '7:56 PM' };
         }
+        this.renderPrayerTimes();
     }
 
     renderPrayerTimes() {
@@ -61,12 +48,10 @@ class PrayerModule {
         container.innerHTML = this.prayerNames.map(name => {
             const time = this.prayerTimes[name] || '--:--';
             const isActive = name === nextPrayer;
-            return `
-                <div class="prayer-time-item ${isActive ? 'active' : ''}">
-                    <span>${this.prayerDisplayNames[name]}</span>
-                    <span class="time">${time}</span>
-                </div>
-            `;
+            return `<div class="prayer-time-item ${isActive ? 'active' : ''}">
+                <span>${this.prayerDisplayNames[name]}</span>
+                <span class="time">${time}</span>
+            </div>`;
         }).join('');
     }
 
@@ -93,10 +78,7 @@ class PrayerModule {
             prayerDate.setHours(hours, minutes, 0, 0);
 
             if (prayerDate > now) {
-                if (!nextTime || prayerDate < nextTime) {
-                    next = name;
-                    nextTime = prayerDate;
-                }
+                if (!nextTime || prayerDate < nextTime) { next = name; nextTime = prayerDate; }
             }
         }
 
@@ -147,9 +129,7 @@ class PrayerModule {
         const prayerDate = new Date(now);
         prayerDate.setHours(hours, minutes, 0, 0);
 
-        if (prayerDate <= now) {
-            prayerDate.setDate(prayerDate.getDate() + 1);
-        }
+        if (prayerDate <= now) prayerDate.setDate(prayerDate.getDate() + 1);
 
         const diff = Math.floor((prayerDate - now) / 1000);
         if (diff > 0) {
@@ -202,14 +182,17 @@ class PrayerModule {
         this.updatePrayerProgress();
     }
 
-    trackPrayer(name) {
+    async trackPrayer(name) {
         const today = new Date().toISOString().split('T')[0];
-        if (!this.trackedPrayers[today]) {
-            this.trackedPrayers[today] = [];
-        }
+        if (!this.trackedPrayers[today]) this.trackedPrayers[today] = [];
+        
         if (!this.trackedPrayers[today].includes(name)) {
             this.trackedPrayers[today].push(name);
             localStorage.setItem('trackedPrayers', JSON.stringify(this.trackedPrayers));
+            
+            try {
+                await API.prayer.track({ prayerName: name, date: today });
+            } catch (error) { console.error('Error tracking prayer:', error); }
             
             if (this.trackedPrayers[today].length === 5) {
                 showToast('🎉 All 5 prayers completed today! MashaAllah!');
@@ -238,31 +221,28 @@ class PrayerModule {
 
     initQibla() {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const meccaLat = 21.4225;
-                const meccaLon = 39.8262;
-                
-                const dLon = meccaLon - lon;
-                const x = Math.sin(dLon * Math.PI / 180) * Math.cos(meccaLat * Math.PI / 180);
-                const y = Math.cos(lat * Math.PI / 180) * Math.sin(meccaLat * Math.PI / 180) -
-                          Math.sin(lat * Math.PI / 180) * Math.cos(meccaLat * Math.PI / 180) * Math.cos(dLon * Math.PI / 180);
-                let bearing = Math.atan2(x, y) * 180 / Math.PI;
-                bearing = (bearing + 360) % 360;
-                
-                document.getElementById('qiblaDirection').textContent = `Qibla: ${bearing.toFixed(0)}° (${this.getDirection(bearing)})`;
-                document.getElementById('qiblaNeedle').style.transform = `translate(-50%, -50%) rotate(${bearing}deg)`;
-            }, () => {
-                document.getElementById('qiblaDirection').textContent = 'Qibla: ~290° (Northwest)';
-            });
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                try {
+                    const data = await API.prayer.getQibla({
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    });
+                    if (data.success) {
+                        document.getElementById('qiblaDirection').textContent = `Qibla: ${data.data.bearing}° (${data.data.direction})`;
+                        document.getElementById('qiblaNeedle').style.transform = `translate(-50%, -50%) rotate(${data.data.bearing}deg)`;
+                    }
+                } catch (error) {
+                    console.error('Error getting qibla:', error);
+                    this.setFallbackQibla();
+                }
+            }, () => { this.setFallbackQibla(); });
+        } else {
+            this.setFallbackQibla();
         }
     }
 
-    getDirection(deg) {
-        const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-        const index = Math.round(deg / 45) % 8;
-        return dirs[index];
+    setFallbackQibla() {
+        document.getElementById('qiblaDirection').textContent = 'Qibla: ~290° (Northwest)';
     }
 
     setupEventListeners() {
@@ -280,9 +260,7 @@ class PrayerModule {
 
         setInterval(() => {
             const now = new Date();
-            const seconds = now.getSeconds();
-            
-            if (seconds === 0) {
+            if (now.getSeconds() === 0) {
                 for (const [name, time] of Object.entries(this.prayerTimes)) {
                     if (time) {
                         const parts = time.match(/(\d+):(\d+)/);
@@ -304,15 +282,11 @@ class PrayerModule {
         showToast(`🕌 ${displayName} prayer time!`);
         
         if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Muslim App', {
-                body: `🕌 ${displayName} prayer time!`,
-                icon: '🕌'
-            });
+            new Notification('Muslim App', { body: `🕌 ${displayName} prayer time!`, icon: '🕌' });
         }
     }
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.prayerModule = new PrayerModule();
 });
