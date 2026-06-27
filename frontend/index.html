@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <title>Pro Max Islamic - Complete Muslim App</title>
     
-    <!-- Meta Tags -->
     <meta name="description" content="Complete Islamic companion app - Quran, Hadith, Prayer, Duas, AI Teacher, Voice Assistant" />
     <meta name="theme-color" content="#0f8a6d" />
     
-    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -51,7 +47,6 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
-        <!-- Top Bar -->
         <header class="topbar">
             <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
             <h1 id="pageTitle">🏠 Home</h1>
@@ -65,11 +60,8 @@
             </div>
         </header>
 
-        <!-- ============================================ -->
         <!-- ===== HOME SECTION ===== -->
-        <!-- ============================================ -->
         <section id="home" class="section active">
-            <!-- Greeting -->
             <div class="greeting-card card">
                 <div class="greeting-content">
                     <h2>Assalamu Alaikum! 🌙</h2>
@@ -89,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- Prayer Countdown -->
             <div class="prayer-countdown card">
                 <div class="countdown-header">
                     <div>
@@ -108,7 +99,6 @@
                 </div>
             </div>
 
-            <!-- Daily Cards Grid -->
             <div class="daily-grid">
                 <div class="daily-card card">
                     <div class="card-header"><i class="fas fa-book-quran"></i><h3>Daily Quran Verse</h3><span class="card-badge">Today</span></div>
@@ -136,18 +126,15 @@
                 </div>
             </div>
 
-            <!-- Islamic Reminders -->
             <div class="reminders-card card">
                 <div class="card-header"><i class="fas fa-bell"></i><h3>Islamic Reminders</h3><button class="view-all">View All</button></div>
-                <div class="reminder-list" id="reminderList">
+                <div class="reminder-list">
                     <div class="reminder-item"><i class="fas fa-check-circle"></i><span>Prayer tracked today</span><span class="reminder-time">✅ Done</span></div>
                     <div class="reminder-item"><i class="fas fa-book"></i><span>Read Quran 2 pages</span><span class="reminder-time">⏳ In Progress</span></div>
                     <div class="reminder-item"><i class="fas fa-clock"></i><span>Dhuhr prayer in 1 hour</span><span class="reminder-time">🔔 Soon</span></div>
-                    <div class="reminder-item"><i class="fas fa-hands-praying"></i><span>Morning Adhkar</span><span class="reminder-time">✅ Done</span></div>
                 </div>
             </div>
 
-            <!-- Streaks & Achievements -->
             <div class="streaks-card card">
                 <div class="card-header"><i class="fas fa-fire"></i><h3>Streaks & Achievements</h3><span class="card-badge">🔥 7 Days</span></div>
                 <div class="streak-stats">
@@ -159,9 +146,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== QURAN SECTION ===== -->
-        <!-- ============================================ -->
         <section id="quran" class="section">
             <div class="section-header"><h2>📖 The Noble Quran</h2><p>Read, listen, and memorize the words of Allah</p></div>
 
@@ -172,49 +157,46 @@
                 <div class="feature-card" id="searchQuran"><i class="fas fa-search"></i><h4>Search</h4><p>Find Verses</p></div>
             </div>
 
-            <!-- Reciter Selector -->
             <div class="card">
                 <h3>🎙️ Choose Reciter</h3>
                 <div class="reciter-selector" id="reciterSelector">
-                    <button class="reciter-btn active" data-reciter="mishary"><span class="reciter-flag">🇸🇦</span> Mishary Alafasy</button>
-                    <button class="reciter-btn" data-reciter="sudais"><span class="reciter-flag">🇸🇦</span> Abdul Rahman Al-Sudais</button>
-                    <button class="reciter-btn" data-reciter="ghamdi"><span class="reciter-flag">🇸🇦</span> Saad Al-Ghamdi</button>
-                    <button class="reciter-btn" data-reciter="muaiqly"><span class="reciter-flag">🇸🇦</span> Maher Al-Muaiqly</button>
-                    <button class="reciter-btn" data-reciter="dosari"><span class="reciter-flag">🇸🇦</span> Yasser Al-Dosari</button>
+                    <button class="reciter-btn active" data-reciter="mishary">🇸🇦 Mishary Alafasy</button>
+                    <button class="reciter-btn" data-reciter="sudais">🇸🇦 Al-Sudais</button>
+                    <button class="reciter-btn" data-reciter="ghamdi">🇸🇦 Al-Ghamdi</button>
+                    <button class="reciter-btn" data-reciter="muaiqly">🇸🇦 Al-Muaiqly</button>
                 </div>
             </div>
 
-            <!-- Search -->
             <div class="search-box card">
                 <input type="text" id="quranSearch" placeholder="Search surah by name or number..." />
                 <button id="searchBtn"><i class="fas fa-search"></i></button>
             </div>
 
-            <!-- Surah List -->
             <div class="card"><h3>All Surahs</h3><div id="surahList"></div></div>
 
-            <!-- Quran Viewer -->
             <div class="quran-viewer" id="quranViewer">
                 <div class="viewer-header">
                     <h2 id="viewerTitle">Surah Name</h2>
                     <div class="viewer-controls">
                         <button class="viewer-btn" id="playAudioBtn"><i class="fas fa-play"></i> Play</button>
-                        <select id="translationSelect"><option value="en">English</option><option value="ur">Urdu</option><option value="bn">Bengali</option><option value="ar">Arabic</option></select>
+                        <select id="translationSelect"><option value="en">English</option><option value="ur">Urdu</option><option value="bn">Bengali</option></select>
                         <button class="close-viewer" id="closeViewer">✕</button>
                     </div>
                 </div>
                 <div id="quranText"></div>
             </div>
+
+            <div class="card">
+                <h3>📑 Bookmarks</h3>
+                <div class="bookmarks-list" id="bookmarksList"></div>
+            </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== AI QURAN TEACHER ===== -->
-        <!-- ============================================ -->
         <section id="quran-teacher" class="section">
-            <div class="section-header"><h2>🎙️ AI Quran Teacher</h2><p>Learn to recite the Quran with voice correction</p></div>
+            <div class="section-header"><h2>🎙️ AI Quran Teacher</h2><p>Learn to recite with voice correction using YOUR voice</p></div>
 
             <div class="teacher-dashboard card">
-                <!-- Voice Status -->
                 <div class="voice-status-bar">
                     <div class="status-text"><i class="fas fa-check-circle"></i><span>✅ Your voice is loaded: <strong>Voice 004.m4a</strong></span></div>
                     <button class="voice-test-btn" onclick="window.quranTeacherModule?.testYourVoice()"><i class="fas fa-play"></i> Test Voice</button>
@@ -255,11 +237,9 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== VOICE ASSISTANT ===== -->
-        <!-- ============================================ -->
         <section id="voice-assistant" class="section">
-            <div class="section-header"><h2>🗣️ Voice Assistant</h2><p>Get personalized feedback with your voice</p></div>
+            <div class="section-header"><h2>🗣️ Voice Assistant</h2><p>Get personalized feedback with YOUR voice</p></div>
 
             <div class="voice-assistant-card card">
                 <div class="voice-status-bar">
@@ -271,7 +251,7 @@
                     <div class="voice-messages" id="voiceMessages">
                         <div class="voice-message bot">
                             <div class="message-content">
-                                <p>Assalamu Alaikum! I'm your voice assistant. Your teacher's voice is loaded and ready to help you with recitation. 🎙️</p>
+                                <p>Assalamu Alaikum! I'm your voice assistant. Your teacher's voice is loaded and ready to help you. 🎙️</p>
                                 <div class="encouragement-phrases">
                                     <span>💚 "MashaAllah, excellent!"</span>
                                     <span>💛 "Good effort, keep going!"</span>
@@ -295,9 +275,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== HADITH SECTION ===== -->
-        <!-- ============================================ -->
         <section id="hadith" class="section">
             <div class="section-header"><h2>📚 Hadith Collection</h2><p>Sayings of the Prophet Muhammad ﷺ</p></div>
 
@@ -306,8 +284,6 @@
                 <button class="collection-btn" data-collection="muslim">Sahih Muslim</button>
                 <button class="collection-btn" data-collection="abudawud">Sunan Abi Dawud</button>
                 <button class="collection-btn" data-collection="tirmidhi">Sunan Tirmidhi</button>
-                <button class="collection-btn" data-collection="nasai">Sunan Nasai</button>
-                <button class="collection-btn" data-collection="ibnmajah">Ibn Majah</button>
             </div>
 
             <div class="search-box card">
@@ -319,9 +295,7 @@
             <div class="card"><h3>⭐ Favorite Hadith</h3><div id="favoriteHadith"></div></div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== DUAS SECTION ===== -->
-        <!-- ============================================ -->
         <section id="duas" class="section">
             <div class="section-header"><h2>🤲 Duas & Adhkar</h2><p>Supplications for every occasion</p></div>
 
@@ -333,8 +307,6 @@
                 <button class="dua-cat" data-cat="eating">Eating</button>
                 <button class="dua-cat" data-cat="travel">Travel</button>
                 <button class="dua-cat" data-cat="illness">Illness</button>
-                <button class="dua-cat" data-cat="marriage">Marriage</button>
-                <button class="dua-cat" data-cat="hajj">Hajj & Umrah</button>
                 <button class="dua-cat" data-cat="daily">Daily</button>
             </div>
 
@@ -358,9 +330,7 @@
             <div class="card"><h3>All Duas</h3><div id="duaList"></div></div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== PRAYER SECTION ===== -->
-        <!-- ============================================ -->
         <section id="prayer" class="section">
             <div class="section-header"><h2>🕌 Prayer Times</h2><p>Stay connected with your daily prayers</p></div>
 
@@ -406,9 +376,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== LEARNING SECTION ===== -->
-        <!-- ============================================ -->
         <section id="learning" class="section">
             <div class="section-header"><h2>🎓 Learn Islam</h2><p>Deepen your knowledge with structured courses</p></div>
 
@@ -453,13 +421,10 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== VIDEOS SECTION ===== -->
-        <!-- ============================================ -->
         <section id="videos" class="section">
-            <div class="section-header"><h2>🎥 Islamic Videos</h2><p>Learn from top scholars and reciters</p></div>
+            <div class="section-header"><h2>🎥 Islamic Videos</h2><p>Learn from top scholars</p></div>
 
-            <!-- Scholar/Ulama Selector -->
             <div class="card">
                 <h3>👳‍♂️ Choose Scholar</h3>
                 <div class="ulama-grid" id="ulamaGrid">
@@ -483,72 +448,40 @@
                         <h4>Sheikh Sharawi</h4>
                         <p>🇪🇬 Egypt</p>
                     </div>
-                    <div class="ulama-card" data-scholar="ghazali">
-                        <img src="https://ui-avatars.com/api/?name=Ghazali&background=0f8a6d&color=fff&size=80" alt="Ghazali" />
-                        <h4>Imam Ghazali</h4>
-                        <p>🇮🇷 Persia</p>
-                    </div>
-                    <div class="ulama-card" data-scholar="qaradawi">
-                        <img src="https://ui-avatars.com/api/?name=Qaradawi&background=0f8a6d&color=fff&size=80" alt="Qaradawi" />
-                        <h4>Sheikh Qaradawi</h4>
-                        <p>🇪🇬 Egypt</p>
-                    </div>
                 </div>
             </div>
 
-            <!-- Video Grid -->
             <div class="card">
                 <h3>📺 Recommended Videos</h3>
                 <div class="video-grid" id="videoGrid">
-                    <div class="video-card">
+                    <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=VIDEO_ID', '_blank')">
                         <div class="video-thumbnail">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID/mqdefault.jpg" alt="Video" />
+                            <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary-bg),var(--primary));display:flex;align-items:center;justify-content:center;font-size:48px;color:white;">📖</div>
                             <div class="play-btn"><i class="fas fa-play"></i></div>
                         </div>
-                        <div class="video-info">
-                            <h4>Tajweed Lesson 1</h4>
-                            <p>Sheikh Bin Baz · 15:30</p>
-                        </div>
+                        <div class="video-info"><h4>Tajweed Lesson 1</h4><p>Sheikh Bin Baz · 15:30</p></div>
                     </div>
-                    <div class="video-card">
+                    <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=VIDEO_ID', '_blank')">
                         <div class="video-thumbnail">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID/mqdefault.jpg" alt="Video" />
+                            <div style="width:100%;height:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));display:flex;align-items:center;justify-content:center;font-size:48px;color:white;">📜</div>
                             <div class="play-btn"><i class="fas fa-play"></i></div>
                         </div>
-                        <div class="video-info">
-                            <h4>Tafseer of Surah Al-Fatihah</h4>
-                            <p>Sheikh Uthaymin · 22:15</p>
-                        </div>
+                        <div class="video-info"><h4>Tafseer of Surah Al-Fatihah</h4><p>Sheikh Uthaymin · 22:15</p></div>
                     </div>
-                    <div class="video-card">
+                    <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=VIDEO_ID', '_blank')">
                         <div class="video-thumbnail">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID/mqdefault.jpg" alt="Video" />
+                            <div style="width:100%;height:100%;background:linear-gradient(135deg,#2d5a88,#1a3a5a);display:flex;align-items:center;justify-content:center;font-size:48px;color:white;">🎙️</div>
                             <div class="play-btn"><i class="fas fa-play"></i></div>
                         </div>
-                        <div class="video-info">
-                            <h4>Quran Recitation - Surah Al-Baqarah</h4>
-                            <p>Mishary Alafasy · 45:20</p>
-                        </div>
-                    </div>
-                    <div class="video-card">
-                        <div class="video-thumbnail">
-                            <img src="https://img.youtube.com/vi/VIDEO_ID/mqdefault.jpg" alt="Video" />
-                            <div class="play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                        <div class="video-info">
-                            <h4>Islamic History: Golden Age</h4>
-                            <p>Sheikh Sharawi · 28:45</p>
-                        </div>
+                        <div class="video-info"><h4>Quran Recitation - Al-Baqarah</h4><p>Mishary Alafasy · 45:20</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== AUDIO SECTION ===== -->
-        <!-- ============================================ -->
         <section id="audio" class="section">
-            <div class="section-header"><h2>🎧 Audio</h2><p>Listen to Quran recitations and Islamic lectures</p></div>
+            <div class="section-header"><h2>🎧 Audio</h2><p>Listen to Quran recitations and lectures</p></div>
 
             <div class="card">
                 <div class="audio-player">
@@ -557,29 +490,22 @@
                         <button><i class="fas fa-pause"></i></button>
                         <button><i class="fas fa-stop"></i></button>
                         <button><i class="fas fa-download"></i></button>
-                        <button><i class="fas fa-volume-up"></i></button>
                     </div>
-                    <div class="audio-progress">
-                        <input type="range" min="0" max="100" value="0" style="width:100%;" />
-                    </div>
+                    <div class="audio-progress"><input type="range" min="0" max="100" value="0" style="width:100%;" /></div>
                     <div class="audio-time"><span>0:00</span> / <span>0:00</span></div>
                 </div>
 
-                <div class="audio-list" id="audioList">
+                <div class="audio-list">
                     <div class="audio-item"><span>📖 Surah Al-Fatihah - Mishary Alafasy</span><span>3:45</span></div>
-                    <div class="audio-item"><span>📖 Surah Al-Baqarah - Abdul Rahman Al-Sudais</span><span>45:20</span></div>
-                    <div class="audio-item"><span>📖 Surah Yasin - Saad Al-Ghamdi</span><span>12:30</span></div>
-                    <div class="audio-item"><span>📖 Surah Ar-Rahman - Maher Al-Muaiqly</span><span>8:15</span></div>
-                    <div class="audio-item"><span>📖 Surah Al-Mulk - Yasser Al-Dosari</span><span>5:20</span></div>
+                    <div class="audio-item"><span>📖 Surah Al-Baqarah - Al-Sudais</span><span>45:20</span></div>
+                    <div class="audio-item"><span>📖 Surah Yasin - Al-Ghamdi</span><span>12:30</span></div>
                     <div class="audio-item"><span>🎙️ Islamic Lecture - Tawhid</span><span>32:15</span></div>
                     <div class="audio-item"><span>🎙️ Morning Adhkar</span><span>8:30</span></div>
                 </div>
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== COMMUNITY SECTION ===== -->
-        <!-- ============================================ -->
         <section id="community" class="section">
             <div class="section-header"><h2>👨‍👩‍👧 Community</h2><p>Connect with fellow Muslims</p></div>
 
@@ -589,51 +515,29 @@
                         <div class="post-avatar">A</div>
                         <div><div class="post-name">Ahmed Al-Farsi</div><div class="post-time">2 hours ago</div></div>
                     </div>
-                    <div class="post-content">
-                        "Alhamdulillah, just completed memorizing Surah Al-Mulk! 📖"
-                    </div>
+                    <div class="post-content">"Alhamdulillah, just completed memorizing Surah Al-Mulk! 📖"</div>
                     <div class="post-actions">
                         <button><i class="fas fa-heart"></i> 24</button>
                         <button><i class="fas fa-comment"></i> 5</button>
                         <button><i class="fas fa-share"></i> Share</button>
                     </div>
                 </div>
-
                 <div class="community-post card">
                     <div class="post-header">
                         <div class="post-avatar">F</div>
                         <div><div class="post-name">Fatima Al-Hassan</div><div class="post-time">5 hours ago</div></div>
                     </div>
-                    <div class="post-content">
-                        "Join our weekly Tafsir study group every Saturday at 3 PM 🕌"
-                    </div>
+                    <div class="post-content">"Join our weekly Tafsir study group every Saturday at 3 PM 🕌"</div>
                     <div class="post-actions">
                         <button><i class="fas fa-heart"></i> 18</button>
                         <button><i class="fas fa-comment"></i> 8</button>
                         <button><i class="fas fa-share"></i> Share</button>
                     </div>
                 </div>
-
-                <div class="community-post card">
-                    <div class="post-header">
-                        <div class="post-avatar">M</div>
-                        <div><div class="post-name">Mohammed Al-Qahtani</div><div class="post-time">1 day ago</div></div>
-                    </div>
-                    <div class="post-content">
-                        "Charity campaign for Gaza. Every dollar helps. May Allah reward you all 🤲"
-                    </div>
-                    <div class="post-actions">
-                        <button><i class="fas fa-heart"></i> 42</button>
-                        <button><i class="fas fa-comment"></i> 12</button>
-                        <button><i class="fas fa-share"></i> Share</button>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== RAMADAN SECTION ===== -->
-        <!-- ============================================ -->
         <section id="ramadan" class="section">
             <div class="section-header"><h2>🌙 Ramadan</h2><p>Your companion for the blessed month</p></div>
 
@@ -664,9 +568,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== HAJJ SECTION ===== -->
-        <!-- ============================================ -->
         <section id="hajj" class="section">
             <div class="section-header"><h2>🕋 Hajj & Umrah</h2><p>Complete guide for your journey</p></div>
 
@@ -695,9 +597,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== KIDS SECTION ===== -->
-        <!-- ============================================ -->
         <section id="kids" class="section">
             <div class="section-header"><h2>👶 Kids Corner</h2><p>Learning Islam is fun!</p></div>
 
@@ -741,9 +641,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== AI ASSISTANT SECTION ===== -->
-        <!-- ============================================ -->
         <section id="ai" class="section">
             <div class="section-header"><h2>🤖 AI Assistant</h2><p>Get answers to your Islamic questions</p></div>
 
@@ -766,15 +664,11 @@
                     <input type="text" id="aiInput" placeholder="Ask a question..." />
                     <button id="aiSend"><i class="fas fa-paper-plane"></i></button>
                 </div>
-                <div class="ai-sources">
-                    <i class="fas fa-check-circle"></i> Citing reliable sources with scholarly opinions
-                </div>
+                <div class="ai-sources"><i class="fas fa-check-circle"></i> Citing reliable sources with scholarly opinions</div>
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== PROFILE SECTION ===== -->
-        <!-- ============================================ -->
         <section id="profile" class="section">
             <div class="section-header"><h2>👤 My Profile</h2><p>Your spiritual journey at a glance</p></div>
 
@@ -804,9 +698,7 @@
             </div>
         </section>
 
-        <!-- ============================================ -->
         <!-- ===== SETTINGS SECTION ===== -->
-        <!-- ============================================ -->
         <section id="settings" class="section">
             <div class="section-header"><h2>⚙️ Settings</h2><p>Customize your app experience</p></div>
 
@@ -871,24 +763,10 @@
         <button class="bottom-nav-item" data-section="ai"><i class="fas fa-robot"></i><span>AI</span></button>
     </nav>
 
-    <!-- ============================================ -->
     <!-- ===== SCRIPTS ===== -->
-    <!-- ============================================ -->
     <script src="js/main.js"></script>
-    <script src="js/quran.js"></script>
-    <script src="js/duas.js"></script>
-    <script src="js/prayer.js"></script>
-    <script src="js/hadith.js"></script>
-    <script src="js/ai.js"></script>
     <script src="js/learning.js"></script>
-    <script src="js/voice-assistant.js"></script>
-    <script src="js/quran-teacher.js"></script>
-    <script src="js/ramadan.js"></script>
-    <script src="js/youtube.js"></script>
-    <script src="js/reciters.js"></script>
-    <script src="js/ulama.js"></script>
-    <script src="js/community.js"></script>
-    <script src="js/hajj.js"></script>
-    <script src="js/kids.js"></script>
+    <script src="js/ai-assistant.js"></script>
+    <script src="js/functions.js"></script>
 </body>
-                                                                                                           </html>
+    </html>
