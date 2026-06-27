@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duas & Adhkar - Muslim App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .dua-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .dua-cat {
+            padding: 8px 18px;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        .dua-cat:hover { background: var(--primary-bg); }
+        .dua-cat.active {
+            background: var(--primary);
+            color: white;
+        }
+        .dua-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+        .dua-item:hover {
+            background: var(--primary-bg);
+        }
+        .dua-item .dua-arabic {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+        .dua-item .dua-translation {
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .dua-item .dua-transliteration {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .dua-item .dua-reference {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        .dua-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .dua-actions button {
+            padding: 4px 14px;
+            border: none;
+            background: var(--primary-bg);
+            color: var(--primary);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dua-actions button:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .adhkar-counter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+        }
+        .counter-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .counter-btn:hover {
+            transform: scale(1.1);
+        }
+        .counter-btn.reset {
+            background: var(--text-muted);
+        }
+        .counter-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 60px;
+            text-align: center;
+        }
+        .favorite-dua {
+            border-left: 4px solid var(--gold);
+        }
+        .dua-search {
+            margin-bottom: 20px;
+        }
+        .dua-search input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .category-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fas fa-mosque"></i><span>MuslimApp</span></div>
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="quran.html" class="menu-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+            <a href="prayer.html" class="menu-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+            <a href="duas.html" class="menu-item active"><i class="fas fa-hands-praying"></i><span>Duas & Adhkar</span></a>
+            <a href="hadith.html" class="menu-item"><i class="fas fa-scroll"></i><span>Hadith</span></a>
+            <a href="ai.html" class="menu-item"><i class="fas fa-robot"></i><span>AI Assistant</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-video"></i><span>Videos</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-headphones"></i><span>Audio</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-hand-holding-heart"></i><span>Zakat</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-moon"></i><span>Ramadan</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-kaaba"></i><span>Hajj & Umrah</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-child"></i><span>Kids</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Duas & Adhkar</h1>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="notifications"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+            </div>
+        </header>
+
+        <!-- Search -->
+        <div class="dua-search card">
+            <input type="text" id="duaSearch" placeholder="Search duas by keyword..." />
+        </div>
+
+        <!-- Categories -->
+        <div class="dua-categories" id="duaCategories">
+            <button class="dua-cat active" data-cat="all">All <span class="category-count">(12)</span></button>
+            <button class="dua-cat" data-cat="morning">Morning <span class="category-count">(4)</span></button>
+            <button class="dua-cat" data-cat="evening">Evening <span class="category-count">(4)</span></button>
+            <button class="dua-cat" data-cat="sleep">Sleep <span class="category-count">(3)</span></button>
+            <button class="dua-cat" data-cat="eating">Eating <span class="category-count">(2)</span></button>
+            <button class="dua-cat" data-cat="travel">Travel <span class="category-count">(3)</span></button>
+            <button class="dua-cat" data-cat="illness">Illness <span class="category-count">(3)</span></button>
+            <button class="dua-cat" data-cat="marriage">Marriage <span class="category-count">(2)</span></button>
+            <button class="dua-cat" data-cat="hajj">Hajj <span class="category-count">(4)</span></button>
+            <button class="dua-cat" data-cat="daily">Daily <span class="category-count">(6)</span></button>
+        </div>
+
+        <!-- Favorites -->
+        <div class="card">
+            <h3>⭐ Favorites</h3>
+            <div id="favoriteDuas"></div>
+        </div>
+
+        <!-- Dua List -->
+        <div class="card">
+            <h3>All Duas</h3>
+            <div id="duaList"></div>
+        </div>
+
+        <!-- Adhkar Counter -->
+        <div class="card">
+            <h3>📿 Adhkar Counter</h3>
+            <div class="adhkar-counter">
+                <button class="counter-btn reset" id="resetCounter"><i class="fas fa-undo"></i></button>
+                <span class="counter-number" id="counterNumber">0</span>
+                <button class="counter-btn" id="incrementCounter"><i class="fas fa-plus"></i></button>
+                <button class="counter-btn" id="decrementCounter"><i class="fas fa-minus"></i></button>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="counter-preset" data-count="33">33x</button>
+                <button class="counter-preset" data-count="34">34x</button>
+                <button class="counter-preset" data-count="99">99x</button>
+                <button class="counter-preset" data-count="100">100x</button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="quran.html" class="bottom-nav-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+        <a href="prayer.html" class="bottom-nav-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+        <a href="duas.html" class="bottom-nav-item active"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
+        <a href="ai.html" class="bottom-nav-item"><i class="fas fa-robot"></i><span>AI</span></a>
+    </nav>
+
+    <script src="js/main.js"></script>
+    <script src="js/duas.js"></script>
+</body>
+                                                                                                 </html>
