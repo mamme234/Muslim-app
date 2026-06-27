@@ -1,0 +1,40 @@
+{
+  "name": "muslim-app-backend",
+  "version": "2.0.0",
+  "description": "Complete Backend for Muslim App - Quran Voice Teacher",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js"
+  },
+  "keywords": [
+    "islam",
+    "muslim",
+    "quran",
+    "hadith",
+    "prayer",
+    "voice",
+    "correction"
+  ],
+  "author": "Muslim App Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.3",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "multer-gridfs-storage": "^5.0.2",
+    "crypto": "^1.0.1",
+    "node-fetch": "^2.6.9"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
