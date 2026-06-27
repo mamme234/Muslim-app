@@ -1,220 +1,132 @@
 // ============================================
-// AI QURAN TEACHER MODULE
+// QURAN TEACHER WITH API INTEGRATION
 // ============================================
 
-class QuranTeacherModule {
-    constructor() {
-        this.isRecording = false;
-        this.recognition = null;
-        this.verses = [
-            { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'In the name of Allah, the Most Gracious, the Most Merciful', surah: 'Al-Fatihah 1:1' },
-            { arabic: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', translation: 'Praise be to Allah, Lord of all the worlds', surah: 'Al-Fatihah 1:2' },
-            { arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', translation: 'You alone we worship, and You alone we ask for help', surah: 'Al-Fatihah 1:5' },
-            { arabic: 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', translation: 'Guide us to the straight path', surah: 'Al-Fatihah 1:6' }
-        ];
-        this.currentVerseIndex = 0;
-        this.accuracy = 0;
-        this.versesMemorized = parseInt(localStorage.getItem('quranMemorizedCount') || '0');
-        this.lessonsCompleted = parseInt(localStorage.getItem('quranLessonsCompleted') || '0');
-        this.mode = 'beginner';
-        this.init();
-    }
-
-    init() {
-        this.updateStats();
-        this.showVerse();
-        this.setupEventListeners();
-        this.initSpeechRecognition();
-    }
-
-    initSpeechRecognition() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            this.recognition = new SpeechRecognition();
-            this.recognition.lang = 'ar-SA';
-            this.recognition.continuous = false;
-            this.recognition.interimResults = true;
-
-            this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                this.processRecitation(transcript);
-            };
-
-            this.recognition.onend = () => {
-                this.isRecording = false;
-                document.getElementById('startRecording').style.display = 'inline-flex';
-                document.getElementById('stopRecording').style.display = 'none';
-            };
-
-            this.recognition.onerror = (event) => {
-                console.error('Recognition error:', event.error);
-                this.isRecording = false;
-                document.getElementById('startRecording').style.display = 'inline-flex';
-                document.getElementById('stopRecording').style.display = 'none';
-                showToast('⚠️ Please speak clearly and try again');
-            };
-        } else {
-            showToast('⚠️ Speech recognition is not supported in this browser');
-        }
-    }
-
-    setupEventListeners() {
-        document.getElementById('startRecording')?.addEventListener('click', () => {
-            this.startRecording();
-        });
-
-        document.getElementById('stopRecording')?.addEventListener('click', () => {
-            this.stopRecording();
-        });
-
-        document.getElementById('playCorrect')?.addEventListener('click', () => {
-            this.playCorrectPronunciation();
-        });
-
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.mode = btn.dataset.mode;
-                showToast(`📚 Mode switched to: ${btn.textContent}`);
-                this.showVerse();
-            });
-        });
-    }
-
-    startRecording() {
-        if (!this.recognition) {
-            showToast('⚠️ Speech recognition not available');
-            return;
-        }
-
-        this.isRecording = true;
-        document.getElementById('startRecording').style.display = 'none';
-        document.getElementById('stopRecording').style.display = 'inline-flex';
-        document.getElementById('feedbackArea').innerHTML = '<div class="feedback-item hint">🎙️ Listening... Please recite the verse</div>';
-        
-        try {
-            this.recognition.start();
-        } catch (e) {
-            console.error('Error starting recognition:', e);
-        }
-    }
-
-    stopRecording() {
-        if (this.recognition) {
-            try {
-                this.recognition.stop();
-            } catch (e) {
-                console.error('Error stopping recognition:', e);
+// At the top of your class, add:
+async loadVersesFromAPI() {
+    try {
+        const surahs = await API.quran.getSurahs();
+        // Get first 5 surahs for practice
+        const verses = [];
+        for (let i = 1; i <= 5; i++) {
+            const surahData = await API.quran.getSurah(i, 'en');
+            if (surahData.success && surahData.data.surah.ayahs) {
+                const ayahs = surahData.data.surah.ayahs.slice(0, 3);
+                ayahs.forEach(ayah => {
+                    verses.push({
+                        arabic: ayah.text,
+                        translation: ayah.translation || '',
+                        surah: `${surahData.data.surah.name} ${ayah.numberInSurah}`,
+                        id: `${i}:${ayah.numberInSurah}`
+                    });
+                });
             }
         }
-        this.isRecording = false;
-        document.getElementById('startRecording').style.display = 'inline-flex';
-        document.getElementById('stopRecording').style.display = 'none';
-    }
-
-    processRecitation(transcript) {
-        const currentVerse = this.verses[this.currentVerseIndex];
-        const correctText = currentVerse.arabic;
-        
-        // Simple comparison (in production, use a more sophisticated method)
-        const similarity = this.calculateSimilarity(transcript, correctText);
-        const accuracy = Math.round(similarity * 100);
-        
-        let feedback = '';
-        let feedbackClass = '';
-        
-        if (accuracy >= 80) {
-            feedback = `✅ Excellent! ${accuracy}% accurate. MashaAllah!`;
-            feedbackClass = 'correct';
-            this.versesMemorized++;
-            localStorage.setItem('quranMemorizedCount', this.versesMemorized.toString());
-            this.updateStats();
-            
-            // Move to next verse after a moment
-            setTimeout(() => {
-                this.currentVerseIndex = (this.currentVerseIndex + 1) % this.verses.length;
-                this.showVerse();
-            }, 2000);
-        } else if (accuracy >= 60) {
-            feedback = `📖 Good effort! ${accuracy}% accurate. Keep practicing!`;
-            feedbackClass = 'hint';
-        } else {
-            feedback = `🔄 Let's try again. Focus on the pronunciation.`;
-            feedbackClass = 'incorrect';
-        }
-        
-        document.getElementById('feedbackArea').innerHTML = `
-            <div class="feedback-item ${feedbackClass}">
-                ${feedback}
-                <br><small style="font-size:12px;">You said: "${transcript}"</small>
-            </div>
-        `;
-        
-        this.accuracy = accuracy;
-        this.updateStats();
-    }
-
-    calculateSimilarity(text1, text2) {
-        // Simple similarity calculation
-        const chars1 = text1.split('');
-        const chars2 = text2.split('');
-        const maxLen = Math.max(chars1.length, chars2.length);
-        if (maxLen === 0) return 0;
-        
-        let matches = 0;
-        for (let i = 0; i < Math.min(chars1.length, chars2.length); i++) {
-            if (chars1[i] === chars2[i]) matches++;
-        }
-        
-        return matches / maxLen;
-    }
-
-    playCorrectPronunciation() {
-        const verse = this.verses[this.currentVerseIndex];
-        const utterance = new SpeechSynthesisUtterance(verse.arabic);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 0.8;
-        utterance.pitch = 1;
-        
-        if (window.speechSynthesis) {
-            window.speechSynthesis.speak(utterance);
-            showToast('🔊 Playing correct pronunciation');
-        } else {
-            showToast('⚠️ Speech synthesis not supported');
-        }
-    }
-
-    showVerse() {
-        const verse = this.verses[this.currentVerseIndex];
-        const container = document.getElementById('currentVerse');
-        if (container) {
-            container.innerHTML = `
-                <p class="arabic" style="font-size:28px;font-weight:600;color:var(--primary);line-height:2;">${verse.arabic}</p>
-                <p class="translation" style="font-size:15px;color:var(--text-secondary);margin-top:8px;">"${verse.translation}"</p>
-                <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">📖 ${verse.surah}</p>
-                <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">🎯 Verse ${this.currentVerseIndex + 1} of ${this.verses.length}</p>
-            `;
-        }
-        
-        // Reset feedback
-        document.getElementById('feedbackArea').innerHTML = `
-            <div class="feedback-item hint">🎙️ Click "Start Recording" and recite the verse above</div>
-        `;
-    }
-
-    updateStats() {
-        document.getElementById('accuracyScore').textContent = `${this.accuracy}%`;
-        document.getElementById('versesMemorized').textContent = this.versesMemorized;
-        
-        // Update lessons completed based on memorized verses
-        this.lessonsCompleted = Math.floor(this.versesMemorized / 2);
-        localStorage.setItem('quranLessonsCompleted', this.lessonsCompleted.toString());
-        document.getElementById('lessonsCompleted').textContent = this.lessonsCompleted;
+        this.verses = verses;
+        this.showVerse();
+    } catch (error) {
+        console.error('Error loading verses:', error);
+        // Use fallback verses
+        this.useFallbackVerses();
     }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    window.quranTeacherModule = new QuranTeacherModule();
-});
+useFallbackVerses() {
+    this.verses = [
+        { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'In the name of Allah, the Most Gracious, the Most Merciful', surah: 'Al-Fatihah 1:1', id: '1:1' },
+        { arabic: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', translation: 'Praise be to Allah, Lord of all the worlds', surah: 'Al-Fatihah 1:2', id: '1:2' },
+        { arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', translation: 'You alone we worship, and You alone we ask for help', surah: 'Al-Fatihah 1:5', id: '1:5' }
+    ];
+    this.showVerse();
+}
+
+// Update the init method:
+async init() {
+    this.updateStats();
+    await this.loadVersesFromAPI();
+    this.setupEventListeners();
+    this.initSpeechRecognition();
+    this.createVoiceCorrectionUI();
+}
+
+// Update processRecitation to save progress to API:
+async processRecitation(transcript) {
+    const currentVerse = this.verses[this.currentVerseIndex];
+    const correctText = currentVerse.arabic;
+    
+    const similarity = this.calculateSimilarity(transcript, correctText);
+    const accuracy = Math.round(similarity * 100);
+    
+    let feedback = '';
+    let feedbackClass = '';
+    
+    if (accuracy >= 80) {
+        feedback = `✅ Excellent! ${accuracy}% accurate. MashaAllah!`;
+        feedbackClass = 'correct';
+        this.versesMemorized++;
+        localStorage.setItem('quranMemorizedCount', this.versesMemorized.toString());
+        this.updateStats();
+        
+        // Save progress to API
+        try {
+            const surahNum = parseInt(currentVerse.id.split(':')[0]);
+            const ayahNum = parseInt(currentVerse.id.split(':')[1]);
+            await API.quran.saveProgress({
+                surah: surahNum,
+                ayah: ayahNum,
+                memorized: true,
+                accuracy: accuracy
+            });
+            console.log('✅ Progress saved to server');
+        } catch (error) {
+            console.error('Error saving progress:', error);
+        }
+        
+        this.playCorrectionVoice('mashaallah');
+        
+        setTimeout(() => {
+            this.currentVerseIndex = (this.currentVerseIndex + 1) % this.verses.length;
+            this.showVerse();
+        }, 2000);
+    } else if (accuracy >= 60) {
+        feedback = `📖 Good effort! ${accuracy}% accurate. Let me help you.`;
+        feedbackClass = 'hint';
+        this.playCorrectionVoice('tryagain');
+    } else {
+        feedback = `🔄 Let's try again. Focus on the pronunciation.`;
+        feedbackClass = 'incorrect';
+        this.playCorrectionVoice('mistake');
+        
+        setTimeout(() => {
+            this.playCorrectPronunciation();
+            setTimeout(() => {
+                this.playCorrectionVoice('repeat');
+            }, 1500);
+        }, 1000);
+    }
+    
+    const incorrectWords = this.findIncorrectWords(transcript, correctText);
+    let highlightHTML = '';
+    if (incorrectWords.length > 0 && accuracy < 80) {
+        highlightHTML = `<div class="incorrect-words" style="margin-top:8px;padding:8px;background:var(--bg-body);border-radius:var(--radius-sm);">
+            <p style="font-size:13px;font-weight:600;">🔴 Words to correct:</p>
+            ${incorrectWords.map(w => `
+                <span style="display:inline-block;padding:2px 10px;margin:2px;background:#f8d7da;color:#721c24;border-radius:var(--radius-full);font-size:13px;">
+                    ${w.word} → ${w.correction || 'correct pronunciation'}
+                </span>
+            `).join('')}
+        </div>`;
+    }
+    
+    document.getElementById('feedbackArea').innerHTML = `
+        <div class="feedback-item ${feedbackClass}">
+            ${feedback}
+            ${highlightHTML}
+            <br><small style="font-size:12px;">You said: "${transcript}"</small>
+            ${accuracy < 80 ? `<br><small style="font-size:12px;">🎯 Correct: "${correctText}"</small>` : ''}
+        </div>
+    `;
+    
+    this.accuracy = accuracy;
+    this.updateStats();
+                        }
