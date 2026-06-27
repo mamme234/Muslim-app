@@ -12,21 +12,17 @@ class HadithModule {
                 { text: '"The best of you are those who are best to their families"', reference: 'Sahih Bukhari, Book 78, Hadith 160', grade: 'sahih' },
                 { text: '"Whoever believes in Allah and the Last Day, let him speak good or remain silent"', reference: 'Sahih Bukhari, Book 78, Hadith 113', grade: 'sahih' },
                 { text: '"The strong person is not the one who can wrestle, but the one who controls himself at times of anger"', reference: 'Sahih Bukhari, Book 73, Hadith 135', grade: 'sahih' },
-                { text: '"None of you truly believes until he loves for his brother what he loves for himself"', reference: 'Sahih Bukhari, Book 2, Hadith 13', grade: 'sahih' },
-                { text: '"Whoever removes a worldly hardship from a believer, Allah will remove one of the hardships of the Day of Judgment"', reference: 'Sahih Bukhari, Book 46, Hadith 36', grade: 'sahih' }
+                { text: '"None of you truly believes until he loves for his brother what he loves for himself"', reference: 'Sahih Bukhari, Book 2, Hadith 13', grade: 'sahih' }
             ],
             muslim: [
                 { text: '"The best of people are those who are most beneficial to others"', reference: 'Sahih Muslim, Book 45, Hadith 100', grade: 'sahih' },
-                { text: '"A good word is charity"', reference: 'Sahih Muslim, Book 5, Hadith 57', grade: 'sahih' },
-                { text: '"Whoever believes in Allah and the Last Day, let him honor his neighbor"', reference: 'Sahih Muslim, Book 1, Hadith 74', grade: 'sahih' }
+                { text: '"A good word is charity"', reference: 'Sahih Muslim, Book 5, Hadith 57', grade: 'sahih' }
             ],
             abudawud: [
-                { text: '"The best of you are those who are best to their families"', reference: 'Sunan Abi Dawud, Book 11, Hadith 225', grade: 'hasan' },
                 { text: '"Whoever guides someone to goodness will have a reward like the one who does it"', reference: 'Sunan Abi Dawud, Book 10, Hadith 20', grade: 'sahih' }
             ],
             tirmidhi: [
-                { text: '"The most beloved of deeds to Allah are those done consistently"', reference: 'Sunan Tirmidhi, Book 48, Hadith 1', grade: 'hasan' },
-                { text: '"Whoever is not grateful to people is not grateful to Allah"', reference: 'Sunan Tirmidhi, Book 27, Hadith 13', grade: 'sahih' }
+                { text: '"The most beloved of deeds to Allah are those done consistently"', reference: 'Sunan Tirmidhi, Book 48, Hadith 1', grade: 'hasan' }
             ],
             nasai: [
                 { text: '"Whoever believes in Allah and the Last Day, let him honor his guest"', reference: 'Sunan Nasai, Book 45, Hadith 15', grade: 'sahih' }
@@ -69,19 +65,13 @@ class HadithModule {
 
         if (search) {
             const term = search.toLowerCase();
-            hadiths = hadiths.filter(h => 
-                h.text.toLowerCase().includes(term) ||
-                h.reference.toLowerCase().includes(term)
-            );
+            hadiths = hadiths.filter(h => h.text.toLowerCase().includes(term) || h.reference.toLowerCase().includes(term));
         }
 
         if (hadiths.length === 0) {
-            container.innerHTML = `
-                <div style="text-align:center;padding:40px;color:var(--text-muted);">
-                    <i class="fas fa-scroll" style="font-size:48px;"></i>
-                    <p>No hadith found in this collection</p>
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">
+                <i class="fas fa-scroll" style="font-size:48px;"></i><p>No hadith found in this collection</p>
+            </div>`;
             return;
         }
 
@@ -123,9 +113,7 @@ class HadithModule {
                 const text = decodeURIComponent(btn.dataset.text);
                 navigator.clipboard.writeText(text).then(() => {
                     btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                    setTimeout(() => {
-                        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                    }, 2000);
+                    setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
                 });
             });
         });
@@ -151,12 +139,10 @@ class HadithModule {
         if (!container) return;
 
         if (this.favorites.length === 0) {
-            container.innerHTML = `
-                <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:14px;">
-                    <i class="fas fa-star-o" style="font-size:24px;"></i>
-                    <p>No favorite hadith yet. Click the star icon on any hadith to add it.</p>
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:14px;">
+                <i class="fas fa-star-o" style="font-size:24px;"></i>
+                <p>No favorite hadith yet. Click the star icon on any hadith to add it.</p>
+            </div>`;
             return;
         }
 
@@ -188,21 +174,15 @@ class HadithModule {
         if (!container) return;
 
         const allHadith = [];
-        Object.values(this.hadithData).forEach(catHadith => {
-            allHadith.push(...catHadith);
-        });
+        Object.values(this.hadithData).forEach(catHadith => { allHadith.push(...catHadith); });
 
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
         const index = dayOfYear % allHadith.length;
         const hadith = allHadith[index] || allHadith[0];
 
         container.innerHTML = `
-            <p style="font-size:16px;line-height:1.6;font-style:italic;color:var(--text-secondary);">
-                ${hadith.text}
-            </p>
-            <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">
-                ${hadith.reference} · ${hadith.grade.toUpperCase()}
-            </p>
+            <p style="font-size:16px;line-height:1.6;font-style:italic;color:var(--text-secondary);">${hadith.text}</p>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">${hadith.reference} · ${hadith.grade.toUpperCase()}</p>
         `;
     }
 
@@ -219,7 +199,6 @@ class HadithModule {
         let streak = parseInt(localStorage.getItem('hadithStreak') || '0');
         
         if (lastRead === today) {
-            // Already read today
         } else if (lastRead === this.getYesterday()) {
             streak++;
             localStorage.setItem('hadithStreak', streak.toString());
@@ -258,7 +237,6 @@ class HadithModule {
     }
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.hadithModule = new HadithModule();
 });
