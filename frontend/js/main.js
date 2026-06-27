@@ -1,18 +1,12 @@
 // ============================================
-// PRO MAX ISLAMIC - MAIN JAVASCRIPT
+// MAIN.JS - CORE FUNCTIONALITY
+// Theme, Sidebar, Navigation, Utilities
 // ============================================
 
-// ===== API CONFIGURATION =====
-const API_CONFIG = {
-    baseURL: 'https://muslim-app-8ccm.onrender.com/api',
-    // For local development: 'http://localhost:5000/api'
-    timeout: 30000,
-    headers: {
-        'Content-Type': 'application/json',
-    }
-};
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 
-// ===== TOAST NOTIFICATION =====
 function showToast(message, duration = 3000) {
     const existing = document.querySelector('.toast-notification');
     if (existing) existing.remove();
@@ -32,9 +26,9 @@ function showToast(message, duration = 3000) {
         font-weight: 500;
         color: var(--text-primary);
         border: 1px solid var(--border-color);
-        animation: slideUp 0.3s ease;
         max-width: 90%;
         text-align: center;
+        animation: fadeIn 0.3s ease;
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -46,7 +40,6 @@ function showToast(message, duration = 3000) {
     }, duration);
 }
 
-// ===== AUTH TOKEN MANAGEMENT =====
 function getAuthToken() {
     return localStorage.getItem('authToken');
 }
@@ -59,161 +52,10 @@ function setAuthToken(token) {
     }
 }
 
-// ===== API REQUEST =====
-async function apiRequest(endpoint, options = {}) {
-    const url = `${API_CONFIG.baseURL}${endpoint}`;
-    const token = getAuthToken();
-    
-    const config = {
-        ...options,
-        headers: {
-            ...API_CONFIG.headers,
-            ...options.headers,
-            ...(token && { 'Authorization': `Bearer ${token}` })
-        }
-    };
-
-    try {
-        const response = await fetch(url, config);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || data.message || 'API request failed');
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-    }
-}
-
-// ===== API METHODS =====
-const API = {
-    auth: {
-        register: (userData) => apiRequest('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData)
-        }),
-        login: (credentials) => apiRequest('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials)
-        }),
-        logout: () => {
-            setAuthToken(null);
-            return Promise.resolve({ success: true });
-        },
-        getMe: () => apiRequest('/auth/me')
-    },
-    quran: {
-        getSurahs: () => apiRequest('/quran/surahs'),
-        getSurah: (number, translation = 'en') => apiRequest(`/quran/surah/${number}?translation=${translation}`),
-        getAyah: (surah, ayah) => apiRequest(`/quran/ayah/${surah}/${ayah}`),
-        search: (query) => apiRequest(`/quran/search?q=${encodeURIComponent(query)}`),
-        getReciters: () => apiRequest('/quran/reciters'),
-        saveProgress: (data) => apiRequest('/quran/progress', {
-            method: 'POST',
-            body: JSON.stringify(data)
-        }),
-        getProgress: () => apiRequest('/quran/progress')
-    },
-    prayer: {
-        getTimes: (params) => {
-            const query = new URLSearchParams(params).toString();
-            return apiRequest(`/prayer/times?${query}`);
-        },
-        getMonth: (params) => {
-            const query = new URLSearchParams(params).toString();
-            return apiRequest(`/prayer/month?${query}`);
-        },
-        track: (data) => apiRequest('/prayer/track', {
-            method: 'POST',
-            body: JSON.stringify(data)
-        }),
-        getHistory: () => apiRequest('/prayer/history'),
-        getQibla: (coords) => apiRequest('/prayer/qibla', {
-            method: 'POST',
-            body: JSON.stringify(coords)
-        })
-    },
-    duas: {
-        getAll: (params) => {
-            const query = new URLSearchParams(params).toString();
-            return apiRequest(`/duas?${query}`);
-        },
-        getById: (id) => apiRequest(`/duas/${id}`),
-        getByCategory: (category) => apiRequest(`/duas/category/${category}`),
-        getMorning: () => apiRequest('/duas/adhkar/morning'),
-        getEvening: () => apiRequest('/duas/adhkar/evening'),
-        favorite: (duaId) => apiRequest('/duas/favorite', {
-            method: 'POST',
-            body: JSON.stringify({ duaId })
-        }),
-        getFavorites: () => apiRequest('/duas/favorites/list')
-    },
-    hadith: {
-        getAll: (params) => {
-            const query = new URLSearchParams(params).toString();
-            return apiRequest(`/hadith?${query}`);
-        },
-        getByCollection: (collection) => apiRequest(`/hadith/collection/${collection}`),
-        getRandom: () => apiRequest('/hadith/random'),
-        favorite: (hadithId) => apiRequest('/hadith/favorite', {
-            method: 'POST',
-            body: JSON.stringify({ hadithId })
-        }),
-        getFavorites: () => apiRequest('/hadith/favorites/list')
-    },
-    user: {
-        getProfile: () => apiRequest('/user/profile'),
-        updateProfile: (data) => apiRequest('/user/profile', {
-            method: 'PUT',
-            body: JSON.stringify(data)
-        }),
-        getStats: () => apiRequest('/user/stats'),
-        getAchievements: () => apiRequest('/user/achievements'),
-        updatePreferences: (data) => apiRequest('/user/preferences', {
-            method: 'PATCH',
-            body: JSON.stringify(data)
-        })
-    },
-    voice: {
-        upload: (formData) => {
-            return fetch(`${API_CONFIG.baseURL}/voice/upload`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${getAuthToken()}`
-                },
-                body: formData
-            }).then(res => res.json());
-        },
-        get: (phrase) => apiRequest(`/voice/${phrase}`),
-        getAll: () => apiRequest('/voice/all/list'),
-        delete: (phrase) => apiRequest(`/voice/${phrase}`, {
-            method: 'DELETE'
-        }),
-        deleteAll: () => apiRequest('/voice/all', {
-            method: 'DELETE'
-        }),
-        check: (phrase) => apiRequest(`/voice/check/${phrase}`)
-    },
-    upload: {
-        voice: (formData) => {
-            return fetch(`${API_CONFIG.baseURL}/upload/voice`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${getAuthToken()}`
-                },
-                body: formData
-            }).then(res => res.json());
-        }
-    },
-    health: () => apiRequest('/health')
-};
-
 // ============================================
 // THEME MANAGEMENT
 // ============================================
+
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     const isDark = savedTheme === 'dark';
@@ -248,8 +90,9 @@ function applyTheme(isDark) {
 }
 
 // ============================================
-// SIDEBAR
+// SIDEBAR & NAVIGATION
 // ============================================
+
 function initSidebar() {
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menuToggle');
@@ -278,9 +121,6 @@ function initSidebar() {
     });
 }
 
-// ============================================
-// NAVIGATION
-// ============================================
 function initNavigation() {
     const menuItems = document.querySelectorAll('.menu-item, .bottom-nav-item');
     const sections = document.querySelectorAll('.section');
@@ -307,50 +147,34 @@ function initNavigation() {
     };
     
     menuItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', function(e) {
             e.preventDefault();
-            const section = item.dataset.section;
+            const section = this.dataset.section;
             if (!section) return;
             
             menuItems.forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
+            this.classList.add('active');
             
             sections.forEach(s => s.classList.remove('active'));
             const targetSection = document.getElementById(section);
             if (targetSection) {
                 targetSection.classList.add('active');
+                console.log('✅ Section opened:', section);
             }
             
             pageTitle.textContent = titleMap[section] || section;
             document.getElementById('sidebar')?.classList.remove('open');
         });
     });
-}
-
-// ============================================
-// API STATUS CHECK
-// ============================================
-async function checkAPIStatus() {
-    const dot = document.querySelector('.status-dot');
     
-    try {
-        const response = await fetch('https://muslim-app-8ccm.onrender.com/api/health');
-        const data = await response.json();
-        
-        if (response.ok && data.status === 'OK') {
-            dot.style.background = '#22c55e';
-        } else {
-            dot.style.background = '#ef4444';
-        }
-    } catch (error) {
-        dot.style.background = '#ef4444';
-        console.warn('⚠️ Backend not reachable');
-    }
+    const homeSection = document.getElementById('home');
+    if (homeSection) homeSection.classList.add('active');
 }
 
 // ============================================
-// LANGUAGE
+// LANGUAGE & DATE
 // ============================================
+
 function initLanguage() {
     const langToggle = document.getElementById('languageToggle');
     if (langToggle) {
@@ -371,6 +195,7 @@ function initLanguage() {
     if (langSelect) {
         langSelect.addEventListener('change', () => {
             localStorage.setItem('language', langSelect.value);
+            showToast('🌍 Language saved');
         });
         const savedLang = localStorage.getItem('language');
         if (savedLang) {
@@ -379,9 +204,6 @@ function initLanguage() {
     }
 }
 
-// ============================================
-// ISLAMIC DATE
-// ============================================
 function initIslamicDate() {
     const dateEl = document.getElementById('islamicDate');
     if (dateEl) {
@@ -393,10 +215,158 @@ function initIslamicDate() {
     }
 }
 
+function initDailyContent() {
+    // Daily Verse
+    const verses = [
+        { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: '"Indeed, with hardship comes ease"', ref: 'Surah Ash-Sharh 94:6' },
+        { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', translation: '"And whoever fears Allah, He will make a way out for him"', ref: 'Surah At-Talaq 65:2' }
+    ];
+    const verse = verses[Math.floor(Math.random() * verses.length)];
+    const verseContainer = document.getElementById('dailyVerse');
+    if (verseContainer) {
+        const arabicEl = verseContainer.querySelector('.arabic');
+        const transEl = verseContainer.querySelector('.translation');
+        const refEl = verseContainer.querySelector('.reference');
+        if (arabicEl) arabicEl.textContent = verse.arabic;
+        if (transEl) transEl.textContent = verse.translation;
+        if (refEl) refEl.textContent = verse.ref;
+    }
+    
+    // Daily Hadith
+    const hadiths = [
+        { text: '"The best of you are those who are best to their families"', ref: 'Sunan Ibn Majah 1977' },
+        { text: '"Whoever believes in Allah and the Last Day, let him speak good or remain silent"', ref: 'Sahih Bukhari 6018' }
+    ];
+    const hadith = hadiths[Math.floor(Math.random() * hadiths.length)];
+    const hadithContainer = document.getElementById('dailyHadith');
+    if (hadithContainer) {
+        const textEl = hadithContainer.querySelector('.hadith-text');
+        const refEl = hadithContainer.querySelector('.hadith-reference');
+        if (textEl) textEl.textContent = hadith.text;
+        if (refEl) refEl.textContent = hadith.ref;
+    }
+    
+    // Daily Dua
+    const duas = [
+        { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا', translation: '"O Allah, I ask You for beneficial knowledge"' },
+        { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ', translation: '"O Allah, I ask You for well-being"' }
+    ];
+    const dua = duas[Math.floor(Math.random() * duas.length)];
+    const duaContainer = document.getElementById('dailyDua');
+    if (duaContainer) {
+        const arabicEl = duaContainer.querySelector('.dua-arabic');
+        const transEl = duaContainer.querySelector('.dua-translation');
+        if (arabicEl) arabicEl.textContent = dua.arabic;
+        if (transEl) transEl.textContent = dua.translation;
+    }
+}
+
+function initPrayerCountdown() {
+    const times = {
+        fajr: '5:12 AM',
+        dhuhr: '12:34 PM',
+        asr: '3:45 PM',
+        maghrib: '6:20 PM',
+        isha: '7:56 PM'
+    };
+    
+    const prayerNames = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    const displayNames = { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+    
+    function updateCountdown() {
+        const now = new Date();
+        let nextPrayer = null;
+        let nextTime = null;
+        
+        for (const name of prayerNames) {
+            const timeStr = times[name];
+            if (!timeStr) continue;
+            
+            const parts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+            if (!parts) continue;
+            
+            let hours = parseInt(parts[1]);
+            const minutes = parseInt(parts[2]);
+            const ampm = parts[3]?.toUpperCase();
+            
+            if (ampm === 'PM' && hours < 12) hours += 12;
+            if (ampm === 'AM' && hours === 12) hours = 0;
+            
+            const prayerDate = new Date(now);
+            prayerDate.setHours(hours, minutes, 0, 0);
+            
+            if (prayerDate > now) {
+                if (!nextTime || prayerDate < nextTime) {
+                    nextPrayer = name;
+                    nextTime = prayerDate;
+                }
+            }
+        }
+        
+        if (!nextPrayer) {
+            const fajrTime = times.fajr;
+            const parts = fajrTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+            if (parts) {
+                let hours = parseInt(parts[1]);
+                const minutes = parseInt(parts[2]);
+                const ampm = parts[3]?.toUpperCase();
+                if (ampm === 'PM' && hours < 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(hours, minutes, 0, 0);
+                nextPrayer = 'fajr';
+            }
+        }
+        
+        if (nextPrayer) {
+            const countdownEl = document.getElementById('prayerCountdown');
+            const nameEl = document.getElementById('nextPrayer');
+            if (nameEl) nameEl.textContent = displayNames[nextPrayer] || nextPrayer;
+            
+            if (nextTime) {
+                const diff = Math.floor((nextTime - now) / 1000);
+                if (diff > 0) {
+                    const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+                    const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                    const s = String(diff % 60).padStart(2, '0');
+                    if (countdownEl) countdownEl.textContent = `${h}:${m}:${s}`;
+                }
+            }
+        }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+function checkAPIStatus() {
+    const dot = document.querySelector('.status-dot');
+    if (!dot) return;
+    
+    try {
+        fetch('https://muslim-app-8ccm.onrender.com/api/health')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'OK') {
+                    dot.style.background = '#22c55e';
+                } else {
+                    dot.style.background = '#ef4444';
+                }
+            })
+            .catch(() => {
+                dot.style.background = '#ef4444';
+            });
+    } catch (error) {
+        dot.style.background = '#ef4444';
+    }
+}
+
 // ============================================
 // INITIALIZATION
 // ============================================
-document.addEventListener('DOMContentLoaded', () => {
+
+document.addEventListener('DOMContentLoaded', function() {
     console.log('🕌 Pro Max Islamic App loaded!');
     
     initTheme();
@@ -404,28 +374,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initLanguage();
     initIslamicDate();
+    initDailyContent();
+    initPrayerCountdown();
     checkAPIStatus();
     
     setInterval(checkAPIStatus, 30000);
     
-    // Expose API globally
-    window.API = API;
     window.showToast = showToast;
     window.getAuthToken = getAuthToken;
     window.setAuthToken = setAuthToken;
-});
-
-// ============================================
-// KEYBOARD SHORTCUTS
-// ============================================
-document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === '/') {
-        e.preventDefault();
-        const searchInput = document.querySelector('input[type="text"]');
-        if (searchInput) searchInput.focus();
-    }
-    if (e.key === 'Escape') {
-        document.getElementById('sidebar')?.classList.remove('open');
-        document.getElementById('quranViewer')?.classList.remove('active');
-    }
 });
