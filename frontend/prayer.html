@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prayer - Muslim App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .prayer-time-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 18px;
+            background: var(--bg-body);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .prayer-time-item:hover {
+            background: var(--primary-bg);
+        }
+        .prayer-time-item .time {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .prayer-time-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        .prayer-time-item.active .time {
+            color: white;
+        }
+        .prayer-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .prayer-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--bg-body);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prayer-checkboxes label:hover {
+            background: var(--primary-bg);
+        }
+        .prayer-checkboxes label.checked {
+            background: var(--primary);
+            color: white;
+        }
+        .prayer-checkboxes input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .qibla-container {
+            text-align: center;
+            padding: 20px;
+        }
+        .compass {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            background: radial-gradient(circle, var(--primary-bg) 40%, var(--bg-card) 100%);
+        }
+        .compass-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: var(--primary);
+            transition: transform 0.5s ease;
+        }
+        .compass-label {
+            position: absolute;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .compass-label:nth-child(3) { top: 8px; left: 50%; transform: translateX(-50%); }
+        .compass-label:nth-child(4) { right: 8px; top: 50%; transform: translateY(-50%); }
+        .compass-label:nth-child(5) { bottom: 8px; left: 50%; transform: translateX(-50%); }
+        .compass-label:nth-child(6) { left: 8px; top: 50%; transform: translateY(-50%); }
+        .qibla-direction {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .mosque-finder {
+            margin-top: 15px;
+        }
+        .mosque-item {
+            padding: 12px 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mosque-item .name {
+            font-weight: 500;
+        }
+        .mosque-item .distance {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .friday-reminder {
+            padding: 15px;
+            background: var(--gold-light);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            margin: 10px 0;
+        }
+        .friday-reminder .friday-icon {
+            font-size: 32px;
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fas fa-mosque"></i><span>MuslimApp</span></div>
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="quran.html" class="menu-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+            <a href="prayer.html" class="menu-item active"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+            <a href="duas.html" class="menu-item"><i class="fas fa-hands-praying"></i><span>Duas & Adhkar</span></a>
+            <a href="hadith.html" class="menu-item"><i class="fas fa-scroll"></i><span>Hadith</span></a>
+            <a href="ai.html" class="menu-item"><i class="fas fa-robot"></i><span>AI Assistant</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-video"></i><span>Videos</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-headphones"></i><span>Audio</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-hand-holding-heart"></i><span>Zakat</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-moon"></i><span>Ramadan</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-kaaba"></i><span>Hajj & Umrah</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-child"></i><span>Kids</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Prayer</h1>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="notifications"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+            </div>
+        </header>
+
+        <!-- Prayer Times -->
+        <div class="card">
+            <h3>🕌 Prayer Times</h3>
+            <div id="prayerTimesList"></div>
+        </div>
+
+        <!-- Countdown -->
+        <div class="card prayer-countdown" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;text-align:center;padding:25px;">
+            <div style="display:flex;justify-content:center;align-items:center;gap:15px;">
+                <span style="font-size:14px;opacity:0.8;">Next Prayer</span>
+                <span class="prayer-name" id="nextPrayerName" style="background:rgba(255,255,255,0.2);padding:4px 16px;border-radius:50px;font-size:14px;">Fajr</span>
+            </div>
+            <div id="prayerCountdown" style="font-size:48px;font-weight:700;letter-spacing:2px;margin:10px 0;">02:34:12</div>
+        </div>
+
+        <!-- Prayer Tracker -->
+        <div class="card">
+            <h3>✅ Today's Prayer Tracker</h3>
+            <div class="prayer-checkboxes" id="prayerCheckboxes">
+                <label><input type="checkbox" value="fajr" /> Fajr</label>
+                <label><input type="checkbox" value="dhuhr" /> Dhuhr</label>
+                <label><input type="checkbox" value="asr" /> Asr</label>
+                <label><input type="checkbox" value="maghrib" /> Maghrib</label>
+                <label><input type="checkbox" value="isha" /> Isha</label>
+            </div>
+            <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+                <span>Progress: <span id="prayerProgress">0</span>%</span>
+                <button id="resetPrayerTracker" style="padding:6px 16px;border:none;background:var(--bg-body);border-radius:var(--radius-full);cursor:pointer;color:var(--text-secondary);">Reset</button>
+            </div>
+        </div>
+
+        <!-- Qibla Compass -->
+        <div class="card">
+            <h3>🧭 Qibla Direction</h3>
+            <div class="qibla-container">
+                <div class="compass" id="compass">
+                    <div class="compass-needle" id="qiblaNeedle"><i class="fas fa-arrow-up"></i></div>
+                    <div class="compass-label">N</div>
+                    <div class="compass-label" style="right:8px;top:50%;transform:translateY(-50%);">E</div>
+                    <div class="compass-label" style="bottom:8px;left:50%;transform:translateX(-50%);">S</div>
+                    <div class="compass-label" style="left:8px;top:50%;transform:translateY(-50%);">W</div>
+                </div>
+                <div class="qibla-direction" id="qiblaDirection">Qibla: 290° (Northwest)</div>
+            </div>
+        </div>
+
+        <!-- Mosque Finder -->
+        <div class="card">
+            <h3>🕌 Nearby Mosques</h3>
+            <div class="mosque-finder" id="mosqueList">
+                <div class="mosque-item">
+                    <span class="name">Masjid Al-Haram</span>
+                    <span class="distance">📍 0.5 km</span>
+                </div>
+                <div class="mosque-item">
+                    <span class="name">Masjid Al-Nabawi</span>
+                    <span class="distance">📍 1.2 km</span>
+                </div>
+                <div class="mosque-item">
+                    <span class="name">Islamic Center</span>
+                    <span class="distance">📍 2.8 km</span>
+                </div>
+                <div class="mosque-item">
+                    <span class="name">Masjid Al-Furqan</span>
+                    <span class="distance">📍 3.5 km</span>
+                </div>
+            </div>
+            <button id="findMosques" style="width:100%;padding:10px;margin-top:10px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;">
+                <i class="fas fa-location-dot"></i> Find Nearby Mosques
+            </button>
+        </div>
+
+        <!-- Friday Reminder -->
+        <div class="card">
+            <div class="friday-reminder" id="fridayReminder">
+                <div class="friday-icon">🕌</div>
+                <h4>Jumu'ah Mubarak!</h4>
+                <p>Friday prayer reminder: 1:30 PM</p>
+                <p style="font-size:13px;color:var(--text-muted);">"O you who believe! When the call is made for prayer on Friday, hasten to the remembrance of Allah"</p>
+                <button id="fridayReminderBtn" style="margin-top:10px;padding:8px 24px;background:var(--gold);color:white;border:none;border-radius:var(--radius-full);cursor:pointer;font-weight:600;">
+                    <i class="fas fa-bell"></i> Set Reminder
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="quran.html" class="bottom-nav-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+        <a href="prayer.html" class="bottom-nav-item active"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+        <a href="duas.html" class="bottom-nav-item"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
+        <a href="ai.html" class="bottom-nav-item"><i class="fas fa-robot"></i><span>AI</span></a>
+    </nav>
+
+    <script src="js/main.js"></script>
+    <script src="js/prayer.js"></script>
+</body>
+              </html>
