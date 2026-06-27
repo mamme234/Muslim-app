@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hadith - Muslim App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .hadith-collections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .collection-btn {
+            padding: 8px 18px;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        .collection-btn:hover {
+            background: var(--primary-bg);
+        }
+        .collection-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .hadith-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+        .hadith-item:hover {
+            background: var(--primary-bg);
+        }
+        .hadith-item .hadith-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .hadith-item .hadith-reference {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hadith-item .hadith-reference .grade {
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .grade.sahih {
+            background: #d4edda;
+            color: #155724;
+        }
+        .grade.hasan {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .grade.daif {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .hadith-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .hadith-actions button {
+            padding: 4px 14px;
+            border: none;
+            background: var(--primary-bg);
+            color: var(--primary);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hadith-actions button:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .search-box button {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+        }
+        .favorite-hadith {
+            border-left: 4px solid var(--gold);
+        }
+        .daily-hadith-card {
+            background: linear-gradient(135deg, var(--primary-bg), var(--bg-card));
+            border-left: 4px solid var(--gold);
+        }
+        .hadith-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .hadith-category {
+            padding: 6px 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hadith-category:hover {
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+        .hadith-category.active {
+            background: var(--primary);
+            color: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-body);
+            border-radius: var(--radius-sm);
+        }
+        .stat-box .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-box .label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fas fa-mosque"></i><span>MuslimApp</span></div>
+            <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="quran.html" class="menu-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+            <a href="prayer.html" class="menu-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+            <a href="duas.html" class="menu-item"><i class="fas fa-hands-praying"></i><span>Duas & Adhkar</span></a>
+            <a href="hadith.html" class="menu-item active"><i class="fas fa-scroll"></i><span>Hadith</span></a>
+            <a href="ai.html" class="menu-item"><i class="fas fa-robot"></i><span>AI Assistant</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-video"></i><span>Videos</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-headphones"></i><span>Audio</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-hand-holding-heart"></i><span>Zakat</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-moon"></i><span>Ramadan</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-kaaba"></i><span>Hajj & Umrah</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-child"></i><span>Kids</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Hadith</h1>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="notifications"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+            </div>
+        </header>
+
+        <!-- Daily Hadith -->
+        <div class="card daily-hadith-card">
+            <h3>📜 Daily Hadith</h3>
+            <div id="dailyHadith">
+                <p style="font-size:16px;line-height:1.6;font-style:italic;color:var(--text-secondary);">
+                    "The best of you are those who are best to their families"
+                </p>
+                <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">Sunan Ibn Majah 1977</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+            <h3>📊 Your Hadith Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="number" id="hadithRead">42</div>
+                    <div class="label">Hadith Read</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="favoriteCount">8</div>
+                    <div class="label">Favorites</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="dailyStreak">7</div>
+                    <div class="label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collections -->
+        <div class="card">
+            <h3>📚 Collections</h3>
+            <div class="hadith-collections" id="hadithCollections">
+                <button class="collection-btn active" data-collection="bukhari">Sahih Bukhari</button>
+                <button class="collection-btn" data-collection="muslim">Sahih Muslim</button>
+                <button class="collection-btn" data-collection="abudawud">Sunan Abi Dawud</button>
+                <button class="collection-btn" data-collection="tirmidhi">Sunan Tirmidhi</button>
+                <button class="collection-btn" data-collection="nasai">Sunan Nasai</button>
+                <button class="collection-btn" data-collection="ibnmajah">Ibn Majah</button>
+                <button class="collection-btn" data-collection="malik">Muwatta Malik</button>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="card">
+            <h3>🏷️ Categories</h3>
+            <div class="hadith-categories" id="hadithCategories">
+                <span class="hadith-category active" data-cat="all">All</span>
+                <span class="hadith-category" data-cat="faith">Faith</span>
+                <span class="hadith-category" data-cat="prayer">Prayer</span>
+                <span class="hadith-category" data-cat="charity">Charity</span>
+                <span class="hadith-category" data-cat="morals">Morals</span>
+                <span class="hadith-category" data-cat="family">Family</span>
+                <span class="hadith-category" data-cat="knowledge">Knowledge</span>
+                <span class="hadith-category" data-cat="patience">Patience</span>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box card">
+            <input type="text" id="hadithSearch" placeholder="Search hadith by keyword..." />
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <!-- Hadith List -->
+        <div class="card">
+            <h3>📖 Hadith Collection</h3>
+            <div id="hadithList"></div>
+        </div>
+
+        <!-- Favorites -->
+        <div class="card">
+            <h3>⭐ Favorite Hadith</h3>
+            <div id="favoriteHadith"></div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="quran.html" class="bottom-nav-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+        <a href="prayer.html" class="bottom-nav-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+        <a href="duas.html" class="bottom-nav-item"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
+        <a href="ai.html" class="bottom-nav-item"><i class="fas fa-robot"></i><span>AI</span></a>
+    </nav>
+
+    <script src="js/main.js"></script>
+    <script src="js/hadith.js"></script>
+</body>
+  </html>
