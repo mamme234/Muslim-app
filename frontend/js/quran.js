@@ -1,270 +1,266 @@
 // ============================================
-// QURAN MODULE
+// VOICE ASSISTANT WITH YOUR VOICE
 // ============================================
 
-class QuranModule {
+class VoiceAssistantModule {
     constructor() {
-        this.surahs = [];
-        this.currentSurah = null;
-        this.bookmarks = JSON.parse(localStorage.getItem('quranBookmarks') || '[]');
-        this.progress = JSON.parse(localStorage.getItem('quranProgress') || '{}');
-        this.translations = {
-            en: 'english',
-            ur: 'urdu',
-            bn: 'bengali',
-            ar: 'arabic'
-        };
+        this.isRecording = false;
+        this.recognition = null;
+        this.messages = [];
+        this.yourVoiceFile = 'Voice 004.m4a';
+        this.encouragements = [
+            '💚 MashaAllah, excellent!',
+            '🌟 Beautiful recitation!',
+            '💛 Good effort, keep going!',
+            '📖 Wonderful! You\'re improving!',
+            '🤲 May Allah bless your efforts!',
+            '⭐ Excellent, continue!',
+            '✨ MashaAllah, very good!',
+            '🕌 You\'re doing great!'
+        ];
         this.init();
     }
 
-    async init() {
-        await this.loadSurahs();
-        this.renderSurahList();
+    init() {
+        this.renderMessages();
         this.setupEventListeners();
-        this.renderBookmarks();
-        this.updateProgress();
+        this.initSpeechRecognition();
+        this.addWelcomeMessage();
+        this.createVoiceStatusUI();
     }
 
-    async loadSurahs() {
-        try {
-            const response = await fetch('https://api.alquran.cloud/v1/meta');
-            const data = await response.json();
-            if (data.code === 200) {
-                this.surahs = data.data.surahs;
-            }
-        } catch (error) {
-            // Fallback data
-            this.surahs = [
-                { number: 1, name: 'Al-Fatihah', englishName: 'The Opener', verses: 7 },
-                { number: 2, name: 'Al-Baqarah', englishName: 'The Cow', verses: 286 },
-                { number: 3, name: 'Aal-Imran', englishName: 'Family of Imran', verses: 200 },
-                { number: 4, name: 'An-Nisa', englishName: 'The Women', verses: 176 },
-                { number: 5, name: 'Al-Maidah', englishName: 'The Table', verses: 120 },
-                { number: 6, name: 'Al-An\'am', englishName: 'The Cattle', verses: 165 },
-                { number: 7, name: 'Al-A\'raf', englishName: 'The Heights', verses: 206 },
-                { number: 8, name: 'Al-Anfal', englishName: 'The Spoils', verses: 75 },
-                { number: 9, name: 'At-Tawbah', englishName: 'The Repentance', verses: 129 },
-                { number: 10, name: 'Yunus', englishName: 'Jonah', verses: 109 },
-            ];
-        }
-    }
+    initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            this.recognition.lang = 'en-US';
+            this.recognition.continuous = true;
+            this.recognition.interimResults = true;
 
-    renderSurahList(filter = '') {
-        const container = document.getElementById('surahList');
-        if (!container) return;
-
-        const filtered = this.surahs.filter(s => 
-            s.name.toLowerCase().includes(filter.toLowerCase()) ||
-            s.englishName.toLowerCase().includes(filter.toLowerCase()) ||
-            s.number.toString().includes(filter)
-        );
-
-        container.innerHTML = filtered.map(surah => `
-            <div class="surah-item" data-surah="${surah.number}">
-                <div class="surah-info">
-                    <span class="surah-number">${surah.number}</span>
-                    <div>
-                        <div class="surah-name">${surah.name}</div>
-                        <div class="surah-english">${surah.englishName}</div>
-                    </div>
-                </div>
-                <div class="surah-verses">${surah.verses} verses</div>
-            </div>
-        `).join('');
-
-        container.querySelectorAll('.surah-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const num = parseInt(item.dataset.surah);
-                this.loadSurah(num);
-            });
-        });
-    }
-
-    async loadSurah(number) {
-        try {
-            const translation = document.getElementById('translationSelect')?.value || 'en';
-            const lang = this.translations[translation] || 'english';
-            
-            const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${number}`);
-            const arabicData = await arabicRes.json();
-            
-            const transRes = await fetch(`https://api.alquran.cloud/v1/surah/${number}/${lang}`);
-            const transData = await transRes.json();
-
-            if (arabicData.code === 200 && transData.code === 200) {
-                this.displaySurah(arabicData.data, transData.data);
-            }
-        } catch (error) {
-            console.error('Error loading surah:', error);
-            document.getElementById('quranText').innerHTML = `
-                <p style="text-align:center;color:var(--text-muted);padding:40px;">
-                    <i class="fas fa-exclamation-circle" style="font-size:48px;"></i><br>
-                    Unable to load surah. Please check your connection.
-                </p>
-            `;
-            document.getElementById('quranViewer').classList.add('active');
-        }
-    }
-
-    displaySurah(arabicData, translationData) {
-        const viewer = document.getElementById('quranViewer');
-        const textContainer = document.getElementById('quranText');
-        const title = document.getElementById('viewerTitle');
-
-        title.textContent = `${arabicData.name} (${arabicData.englishName})`;
-        
-        const verses = arabicData.ayahs.map((ayah, index) => {
-            const transAyah = translationData.ayahs[index] || { text: '' };
-            return {
-                number: ayah.numberInSurah,
-                arabic: ayah.text,
-                translation: transAyah.text
+            this.recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                this.processVoiceInput(transcript);
             };
-        });
 
-        textContainer.innerHTML = `
-            <div style="text-align:center;padding:10px 0 20px;border-bottom:1px solid var(--border-color);">
-                <p style="color:var(--text-muted);font-size:14px;">
-                    ${arabicData.revelationType} · ${arabicData.numberOfAyahs} verses
-                </p>
-            </div>
-            ${verses.map(v => `
-                <div class="ayah" onclick="window.quranModule?.bookmarkVerse(${arabicData.number}, ${v.number})">
-                    <span class="ayah-number">${v.number}</span>
-                    <div class="ayah-text">${v.arabic}</div>
-                    <div class="ayah-translation">${v.translation}</div>
-                </div>
-            `).join('')}
-        `;
-
-        viewer.classList.add('active');
-        this.currentSurah = arabicData.number;
-        this.updateProgress();
-    }
-
-    bookmarkVerse(surah, ayah) {
-        const surahData = this.surahs.find(s => s.number === surah);
-        if (!surahData) return;
-
-        const bookmark = {
-            id: Date.now().toString(),
-            surah,
-            ayah,
-            name: surahData.name,
-            text: `${surahData.name} ${ayah}`
-        };
-
-        // Check if already bookmarked
-        if (!this.bookmarks.some(b => b.surah === surah && b.ayah === ayah)) {
-            this.bookmarks.push(bookmark);
-            localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
-            this.renderBookmarks();
-            showToast(`📖 Bookmarked: ${bookmark.text}`);
-        } else {
-            showToast('Already bookmarked');
-        }
-    }
-
-    renderBookmarks() {
-        const container = document.getElementById('bookmarksList');
-        if (!container) return;
-
-        if (this.bookmarks.length === 0) {
-            container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">No bookmarks yet. Click on a verse to bookmark it.</span>';
-            return;
-        }
-
-        container.innerHTML = this.bookmarks.map(b => `
-            <span class="bookmark-item" onclick="window.quranModule?.loadSurah(${b.surah})">
-                ${b.name} ${b.ayah ? `:${b.ayah}` : ''}
-                <i class="fas fa-times" style="margin-left:8px;font-size:12px;cursor:pointer;" onclick="event.stopPropagation(); window.quranModule?.removeBookmark('${b.id}')"></i>
-            </span>
-        `).join('');
-    }
-
-    removeBookmark(id) {
-        this.bookmarks = this.bookmarks.filter(b => b.id !== id);
-        localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
-        this.renderBookmarks();
-        showToast('Bookmark removed');
-    }
-
-    updateProgress() {
-        const progress = document.querySelector('.progress-tracker progress');
-        if (progress) {
-            const readCount = this.surahs.filter(s => this.progress[s.number]).length;
-            progress.value = readCount;
-            progress.max = this.surahs.length;
+            this.recognition.onerror = (event) => {
+                console.error('Recognition error:', event.error);
+                if (event.error === 'not-allowed') {
+                    showToast('⚠️ Please allow microphone access');
+                }
+            };
         }
     }
 
     setupEventListeners() {
-        // Close viewer
-        document.getElementById('closeViewer')?.addEventListener('click', () => {
-            document.getElementById('quranViewer').classList.remove('active');
+        document.getElementById('voiceInputBtn')?.addEventListener('click', () => {
+            this.toggleRecording();
         });
 
-        // Search
-        const searchInput = document.getElementById('quranSearch');
-        const searchBtn = document.getElementById('searchBtn');
-        
-        const performSearch = () => {
-            if (searchInput) {
-                this.renderSurahList(searchInput.value);
-            }
-        };
-
-        searchInput?.addEventListener('input', performSearch);
-        searchBtn?.addEventListener('click', performSearch);
-
-        // Translation change
-        document.getElementById('translationSelect')?.addEventListener('change', () => {
-            if (this.currentSurah) {
-                this.loadSurah(this.currentSurah);
+        document.getElementById('voiceSendBtn')?.addEventListener('click', () => {
+            const input = document.getElementById('voiceTextInput');
+            if (input.value.trim()) {
+                this.addMessage('user', input.value.trim());
+                this.processTextInput(input.value.trim());
+                input.value = '';
             }
         });
 
-        // Feature cards
-        document.getElementById('readQuran')?.addEventListener('click', () => {
-            document.querySelector('.surah-item')?.click();
-        });
-
-        document.getElementById('searchQuran')?.addEventListener('click', () => {
-            document.getElementById('quranSearch')?.focus();
-        });
-
-        document.getElementById('memorizeQuran')?.addEventListener('click', () => {
-            this.startMemorization();
-        });
-
-        document.getElementById('listenQuran')?.addEventListener('click', () => {
-            showToast('🎧 Audio recitation coming soon!');
+        document.getElementById('voiceTextInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('voiceSendBtn')?.click();
+            }
         });
     }
 
-    startMemorization() {
-        if (this.surahs.length === 0) return;
+    // ===== YOUR VOICE METHODS =====
+
+    createVoiceStatusUI() {
+        const voiceCard = document.querySelector('.voice-assistant-card');
+        if (!voiceCard) return;
+
+        const statusDiv = document.createElement('div');
+        statusDiv.style.cssText = `
+            padding: 12px 16px;
+            background: var(--primary-bg);
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        `;
+        statusDiv.innerHTML = `
+            <span>
+                <i class="fas fa-check-circle" style="color:var(--primary);"></i> 
+                ✅ Your voice is loaded: <strong>Voice 004.m4a</strong>
+            </span>
+            <button onclick="window.voiceAssistantModule?.playYourVoice()" style="padding:6px 16px;background:var(--primary);color:white;border:none;border-radius:50px;cursor:pointer;">
+                <i class="fas fa-play"></i> Test Voice
+            </button>
+        `;
         
-        const randomSurah = this.surahs[Math.floor(Math.random() * this.surahs.length)];
-        this.loadSurah(randomSurah.number);
+        const chatDiv = voiceCard.querySelector('.voice-chat');
+        if (chatDiv) {
+            voiceCard.insertBefore(statusDiv, chatDiv);
+        }
+    }
+
+    // Play your voice
+    playYourVoice() {
+        try {
+            const audio = new Audio('js/Voice 004.m4a');
+            audio.play();
+            showToast('🔊 Playing your voice');
+            return true;
+        } catch (e) {
+            console.error('Error playing voice:', e);
+            this.speakWithYourVoice();
+            return false;
+        }
+    }
+
+    // Fallback
+    speakWithYourVoice() {
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance('Bismillah, repeat after me');
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Use your voice for corrections
+    correctWithYourVoice() {
+        this.playYourVoice();
+        this.addMessage('bot', '🔊 Listen to the teacher\'s voice for correct pronunciation.');
+    }
+
+    toggleRecording() {
+        if (this.isRecording) {
+            this.stopRecording();
+        } else {
+            this.startRecording();
+        }
+    }
+
+    startRecording() {
+        if (!this.recognition) {
+            showToast('⚠️ Speech recognition not available');
+            return;
+        }
+
+        this.isRecording = true;
+        const btn = document.getElementById('voiceInputBtn');
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        btn.style.background = '#ef4444';
+        
+        try {
+            this.recognition.start();
+            showToast('🎤 Listening... Speak now');
+        } catch (e) {
+            console.error('Error starting recognition:', e);
+        }
+    }
+
+    stopRecording() {
+        if (this.recognition) {
+            try {
+                this.recognition.stop();
+            } catch (e) {
+                console.error('Error stopping recognition:', e);
+            }
+        }
+        this.isRecording = false;
+        const btn = document.getElementById('voiceInputBtn');
+        btn.innerHTML = '<i class="fas fa-microphone"></i> Speak';
+        btn.style.background = '';
+        showToast('⏹️ Listening stopped');
+    }
+
+    processVoiceInput(transcript) {
+        if (transcript.trim()) {
+            this.addMessage('user', transcript);
+            this.processTextInput(transcript);
+        }
+    }
+
+    processTextInput(text) {
+        const lower = text.toLowerCase();
+        let response = '';
+        
+        if (lower.includes('recite') || lower.includes('read') || lower.includes('quran')) {
+            response = this.getRandomEncouragement() + ' Let me help you with recitation. Listen to the teacher.';
+            this.correctWithYourVoice();
+        } else if (lower.includes('pray') || lower.includes('salah')) {
+            response = this.getRandomEncouragement() + ' Prayer is the second pillar of Islam.';
+        } else if (lower.includes('dua') || lower.includes('supplication')) {
+            response = this.getRandomEncouragement() + ' Duas are a beautiful way to connect with Allah.';
+        } else if (lower.includes('mistake') || lower.includes('wrong')) {
+            response = this.getRandomEncouragement() + ' Let me help you correct that.';
+            this.correctWithYourVoice();
+        } else {
+            response = this.getRandomEncouragement() + ' I\'m here to help you with your Islamic learning journey.';
+        }
         
         setTimeout(() => {
-            const ayahs = document.querySelectorAll('.ayah');
-            if (ayahs.length > 0) {
-                const randomIndex = Math.floor(Math.random() * ayahs.length);
-                ayahs.forEach((el, i) => {
-                    el.style.background = i === randomIndex ? 'var(--primary-bg)' : 'transparent';
-                    el.style.padding = i === randomIndex ? '12px 8px' : '12px 0';
-                    el.style.borderRadius = i === randomIndex ? 'var(--radius-sm)' : '0';
-                });
-                ayahs[randomIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                showToast('🎯 Focus on this verse for memorization');
-            }
+            this.addMessage('bot', response);
         }, 500);
+    }
+
+    getRandomEncouragement() {
+        return this.encouragements[Math.floor(Math.random() * this.encouragements.length)];
+    }
+
+    addMessage(role, content) {
+        const message = { role, content, timestamp: new Date().toISOString() };
+        this.messages.push(message);
+        this.renderMessages();
+        
+        if (role === 'bot') {
+            this.speakResponse(content);
+        }
+    }
+
+    renderMessages() {
+        const container = document.getElementById('voiceMessages');
+        if (!container) return;
+
+        container.innerHTML = this.messages.map(msg => `
+            <div class="voice-message ${msg.role}">
+                <div class="message-content">
+                    <p>${msg.content}</p>
+                    <small style="font-size:10px;color:var(--text-muted);">${new Date(msg.timestamp).toLocaleTimeString()}</small>
+                </div>
+            </div>
+        `).join('');
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    speakResponse(text) {
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    addWelcomeMessage() {
+        this.addMessage('bot', 'Assalamu Alaikum! I\'m your voice assistant. Your teacher\'s voice is loaded and ready to help you with recitation. 🎙️');
+        
+        setTimeout(() => {
+            this.addMessage('bot', '💡 You can say: "Recite Quran", "Teach me a Dua", "Help me with prayer", or "Correct my recitation"');
+        }, 1000);
     }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    window.quranModule = new QuranModule();
+    window.voiceAssistantModule = new VoiceAssistantModule();
 });
