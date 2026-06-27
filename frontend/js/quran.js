@@ -72,7 +72,6 @@ class QuranModule {
             </div>
         `).join('');
 
-        // Add click events
         container.querySelectorAll('.surah-item').forEach(item => {
             item.addEventListener('click', () => {
                 const num = parseInt(item.dataset.surah);
@@ -86,11 +85,9 @@ class QuranModule {
             const translation = document.getElementById('translationSelect')?.value || 'en';
             const lang = this.translations[translation] || 'english';
             
-            // Load Arabic text
             const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${number}`);
             const arabicData = await arabicRes.json();
             
-            // Load translation
             const transRes = await fetch(`https://api.alquran.cloud/v1/surah/${number}/${lang}`);
             const transData = await transRes.json();
 
@@ -99,7 +96,6 @@ class QuranModule {
             }
         } catch (error) {
             console.error('Error loading surah:', error);
-            // Fallback: show error message
             document.getElementById('quranText').innerHTML = `
                 <p style="text-align:center;color:var(--text-muted);padding:40px;">
                     <i class="fas fa-exclamation-circle" style="font-size:48px;"></i><br>
@@ -117,7 +113,6 @@ class QuranModule {
 
         title.textContent = `${arabicData.name} (${arabicData.englishName})`;
         
-        // Combine verses
         const verses = arabicData.ayahs.map((ayah, index) => {
             const transAyah = translationData.ayahs[index] || { text: '' };
             return {
@@ -128,13 +123,13 @@ class QuranModule {
         });
 
         textContainer.innerHTML = `
-            <div style="text-align:center;padding:10px 0 20px;border-bottom:1px solid rgba(0,0,0,0.05);">
+            <div style="text-align:center;padding:10px 0 20px;border-bottom:1px solid var(--border-color);">
                 <p style="color:var(--text-muted);font-size:14px;">
                     ${arabicData.revelationType} · ${arabicData.numberOfAyahs} verses
                 </p>
             </div>
             ${verses.map(v => `
-                <div class="ayah">
+                <div class="ayah" onclick="window.quranModule?.bookmarkVerse(${arabicData.number}, ${v.number})">
                     <span class="ayah-number">${v.number}</span>
                     <div class="ayah-text">${v.arabic}</div>
                     <div class="ayah-translation">${v.translation}</div>
@@ -144,9 +139,63 @@ class QuranModule {
 
         viewer.classList.add('active');
         this.currentSurah = arabicData.number;
-        
-        // Update progress
         this.updateProgress();
+    }
+
+    bookmarkVerse(surah, ayah) {
+        const surahData = this.surahs.find(s => s.number === surah);
+        if (!surahData) return;
+
+        const bookmark = {
+            id: Date.now().toString(),
+            surah,
+            ayah,
+            name: surahData.name,
+            text: `${surahData.name} ${ayah}`
+        };
+
+        // Check if already bookmarked
+        if (!this.bookmarks.some(b => b.surah === surah && b.ayah === ayah)) {
+            this.bookmarks.push(bookmark);
+            localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
+            this.renderBookmarks();
+            showToast(`📖 Bookmarked: ${bookmark.text}`);
+        } else {
+            showToast('Already bookmarked');
+        }
+    }
+
+    renderBookmarks() {
+        const container = document.getElementById('bookmarksList');
+        if (!container) return;
+
+        if (this.bookmarks.length === 0) {
+            container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">No bookmarks yet. Click on a verse to bookmark it.</span>';
+            return;
+        }
+
+        container.innerHTML = this.bookmarks.map(b => `
+            <span class="bookmark-item" onclick="window.quranModule?.loadSurah(${b.surah})">
+                ${b.name} ${b.ayah ? `:${b.ayah}` : ''}
+                <i class="fas fa-times" style="margin-left:8px;font-size:12px;cursor:pointer;" onclick="event.stopPropagation(); window.quranModule?.removeBookmark('${b.id}')"></i>
+            </span>
+        `).join('');
+    }
+
+    removeBookmark(id) {
+        this.bookmarks = this.bookmarks.filter(b => b.id !== id);
+        localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
+        this.renderBookmarks();
+        showToast('Bookmark removed');
+    }
+
+    updateProgress() {
+        const progress = document.querySelector('.progress-tracker progress');
+        if (progress) {
+            const readCount = this.surahs.filter(s => this.progress[s.number]).length;
+            progress.value = readCount;
+            progress.max = this.surahs.length;
+        }
     }
 
     setupEventListeners() {
@@ -180,38 +229,25 @@ class QuranModule {
             document.querySelector('.surah-item')?.click();
         });
 
-        document.getElementById('bookmarks')?.addEventListener('click', () => {
-            document.getElementById('bookmarksList')?.scrollIntoView({ behavior: 'smooth' });
-        });
-
         document.getElementById('searchQuran')?.addEventListener('click', () => {
             document.getElementById('quranSearch')?.focus();
         });
 
-        document.getElementById('memorization')?.addEventListener('click', () => {
+        document.getElementById('memorizeQuran')?.addEventListener('click', () => {
             this.startMemorization();
         });
 
-        // Bookmark click
-        document.querySelectorAll('.bookmark-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const text = item.textContent;
-                const match = text.match(/(\d+):(\d+)/);
-                if (match) {
-                    this.loadSurah(parseInt(match[1]));
-                }
-            });
+        document.getElementById('listenQuran')?.addEventListener('click', () => {
+            showToast('🎧 Audio recitation coming soon!');
         });
     }
 
     startMemorization() {
-        // Simple memorization mode - show random ayah
         if (this.surahs.length === 0) return;
         
         const randomSurah = this.surahs[Math.floor(Math.random() * this.surahs.length)];
         this.loadSurah(randomSurah.number);
         
-        // Highlight random ayah
         setTimeout(() => {
             const ayahs = document.querySelectorAll('.ayah');
             if (ayahs.length > 0) {
@@ -222,74 +258,13 @@ class QuranModule {
                     el.style.borderRadius = i === randomIndex ? 'var(--radius-sm)' : '0';
                 });
                 ayahs[randomIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToast('🎯 Focus on this verse for memorization');
             }
         }, 500);
     }
-
-    renderBookmarks() {
-        const container = document.getElementById('bookmarksList');
-        if (!container) return;
-
-        if (this.bookmarks.length === 0) {
-            container.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">No bookmarks yet. Click on a verse to bookmark it.</span>';
-            return;
-        }
-
-        container.innerHTML = this.bookmarks.map(b => `
-            <span class="bookmark-item" data-surah="${b.surah}" data-ayah="${b.ayah}">
-                ${b.name} ${b.ayah ? `:${b.ayah}` : ''}
-                <i class="fas fa-times" style="margin-left:8px;font-size:12px;cursor:pointer;" data-remove="${b.id}"></i>
-            </span>
-        `).join('');
-
-        // Add remove functionality
-        container.querySelectorAll('[data-remove]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = btn.dataset.remove;
-                this.removeBookmark(id);
-            });
-        });
-    }
-
-    addBookmark(surah, ayah = null) {
-        const surahData = this.surahs.find(s => s.number === surah);
-        if (!surahData) return;
-
-        const bookmark = {
-            id: Date.now().toString(),
-            surah,
-            ayah,
-            name: surahData.name
-        };
-
-        this.bookmarks.push(bookmark);
-        localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
-        this.renderBookmarks();
-    }
-
-    removeBookmark(id) {
-        this.bookmarks = this.bookmarks.filter(b => b.id !== id);
-        localStorage.setItem('quranBookmarks', JSON.stringify(this.bookmarks));
-        this.renderBookmarks();
-    }
-
-    updateProgress() {
-        const progress = document.querySelector('.progress-tracker progress');
-        if (progress) {
-            const readCount = this.surahs.filter(s => this.progress[s.number]).length;
-            progress.value = readCount;
-            progress.max = this.surahs.length;
-            
-            const label = progress.parentElement.querySelector('span');
-            if (label) {
-                label.textContent = `${readCount} of ${this.surahs.length} Surahs`;
-            }
-        }
-    }
 }
 
-// Initialize when DOM is ready
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.quranModule = new QuranModule();
 });
