@@ -1,4 +1,8 @@
 /* ============================================
+   PRO MAX ISLAMIC - COMPLETE STYLESHEET
+   ============================================ */
+
+/* ============================================
    ROOT VARIABLES
    ============================================ */
 :root {
@@ -27,6 +31,7 @@
     --radius-full: 50px;
     --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --font: 'Inter', sans-serif;
+    --font-arabic: 'Amiri', serif;
     --sidebar-width: 270px;
     --border-color: rgba(0,0,0,0.06);
     --glow: 0 0 30px rgba(15, 138, 109, 0.15);
@@ -57,7 +62,7 @@
 }
 
 /* ============================================
-   RESET
+   RESET & BASE
    ============================================ */
 * {
     margin: 0;
@@ -116,7 +121,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--primary);
 }
@@ -453,8 +458,12 @@ body {
 }
 
 @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .prayer-countdown * {
@@ -540,6 +549,7 @@ body {
     color: var(--primary);
     margin-bottom: 8px;
     line-height: 1.8;
+    font-family: var(--font-arabic);
 }
 
 .quran-verse .translation {
@@ -573,6 +583,7 @@ body {
     color: var(--primary);
     margin-bottom: 6px;
     line-height: 1.8;
+    font-family: var(--font-arabic);
 }
 
 .dua-translation {
@@ -910,6 +921,7 @@ body {
     line-height: 1.8;
     font-weight: 500;
     color: var(--text-primary);
+    font-family: var(--font-arabic);
 }
 
 .ayah-translation {
@@ -997,6 +1009,7 @@ body {
     font-weight: 600;
     color: var(--primary);
     line-height: 2;
+    font-family: var(--font-arabic);
 }
 
 .verse-display .translation {
@@ -1240,6 +1253,175 @@ body {
 .voice-settings h4 {
     margin-bottom: 12px;
     color: var(--text-primary);
+}
+
+/* ============================================
+   VOICE CORRECTION PANEL
+   ============================================ */
+.correction-panel {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.correction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.correction-header h3 {
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.correction-header h3 i {
+    color: var(--primary);
+    margin-right: 8px;
+}
+
+.correction-status {
+    padding: 4px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--bg-body);
+}
+
+.correction-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.btn-record-voice {
+    padding: 10px 20px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-record-voice:hover {
+    transform: scale(1.04);
+    box-shadow: var(--glow);
+}
+
+.btn-record-voice.recording {
+    background: #ef4444;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.btn-test-voice {
+    padding: 10px 20px;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-test-voice:hover:not(:disabled) {
+    transform: scale(1.04);
+}
+
+.btn-test-voice:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-clear-voice {
+    padding: 10px 20px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-clear-voice:hover {
+    transform: scale(1.04);
+}
+
+.correction-voice-status {
+    padding: 12px;
+    background: var(--bg-body);
+    border-radius: var(--radius-sm);
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.correction-phrases h4 {
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.phrase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.phrase-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--bg-body);
+    border-radius: var(--radius-sm);
+}
+
+.phrase-item span {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.record-phrase {
+    padding: 4px 12px;
+    background: var(--primary-bg);
+    color: var(--primary);
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.record-phrase:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.phrase-status {
+    font-size: 16px;
+    min-width: 20px;
 }
 
 /* ============================================
@@ -1505,10 +1687,26 @@ body {
     color: var(--text-secondary);
 }
 
-.compass-label:nth-child(3) { top: 8px; left: 50%; transform: translateX(-50%); }
-.compass-label:nth-child(4) { right: 8px; top: 50%; transform: translateY(-50%); }
-.compass-label:nth-child(5) { bottom: 8px; left: 50%; transform: translateX(-50%); }
-.compass-label:nth-child(6) { left: 8px; top: 50%; transform: translateY(-50%); }
+.compass-label:nth-child(3) {
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.compass-label:nth-child(4) {
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.compass-label:nth-child(5) {
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.compass-label:nth-child(6) {
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
 
 #qiblaDirection {
     font-size: 18px;
@@ -1871,6 +2069,7 @@ body {
     text-align: center;
     font-weight: 500;
     margin-bottom: 8px;
+    font-family: var(--font-arabic);
 }
 
 .checklist-item {
@@ -1911,7 +2110,9 @@ body {
     margin-bottom: 12px;
 }
 
-.story-item, .game-item, .memorization-item {
+.story-item,
+.game-item,
+.memorization-item {
     padding: 10px 14px;
     background: var(--bg-body);
     border-radius: var(--radius-sm);
@@ -1920,7 +2121,9 @@ body {
     cursor: pointer;
 }
 
-.story-item:hover, .game-item:hover, .memorization-item:hover {
+.story-item:hover,
+.game-item:hover,
+.memorization-item:hover {
     background: var(--primary-bg);
     transform: translateX(4px);
 }
@@ -2111,11 +2314,11 @@ body {
     transition: var(--transition);
 }
 
-.toggle input:checked + .toggle-slider {
+.toggle input:checked+.toggle-slider {
     background: var(--primary);
 }
 
-.toggle input:checked + .toggle-slider:before {
+.toggle input:checked+.toggle-slider:before {
     transform: translateX(22px);
 }
 
@@ -2415,4 +2618,4 @@ body {
     .ramadan-header h3 {
         font-size: 20px;
     }
-    }
+   }
