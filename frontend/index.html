@@ -6,7 +6,7 @@
     <title>Muslim App - Islam Companion</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
     <!-- ===== SIDEBAR ===== -->
@@ -22,31 +22,27 @@
         </div>
 
         <div class="sidebar-menu">
-            <a href="#" class="menu-item active" data-section="home">
+            <a href="index.html" class="menu-item active">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="#" class="menu-item" data-section="quran">
+            <a href="quran.html" class="menu-item">
                 <i class="fas fa-book-quran"></i>
                 <span>Quran</span>
             </a>
-            <a href="#" class="menu-item" data-section="prayer">
+            <a href="prayer.html" class="menu-item">
                 <i class="fas fa-mosque"></i>
                 <span>Prayer</span>
             </a>
-            <a href="#" class="menu-item" data-section="duas">
+            <a href="duas.html" class="menu-item">
                 <i class="fas fa-hands-praying"></i>
                 <span>Duas & Adhkar</span>
             </a>
-            <a href="#" class="menu-item" data-section="hadith">
+            <a href="hadith.html" class="menu-item">
                 <i class="fas fa-scroll"></i>
                 <span>Hadith</span>
             </a>
-            <a href="#" class="menu-item" data-section="learn">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Learn Islam</span>
-            </a>
-            <a href="#" class="menu-item" data-section="ai">
+            <a href="ai.html" class="menu-item">
                 <i class="fas fa-robot"></i>
                 <span>AI Assistant</span>
             </a>
@@ -209,360 +205,17 @@
                 </div>
             </div>
         </section>
-
-        <!-- ===== QURAN SECTION ===== -->
-        <section id="quran" class="section">
-            <div class="quran-search card">
-                <input type="text" placeholder="Search Quran..." id="quranSearch" />
-                <button><i class="fas fa-search"></i></button>
-            </div>
-            
-            <div class="quran-surah-list" id="surahList">
-                <!-- Populated by JS -->
-            </div>
-
-            <div class="quran-viewer" id="quranViewer" style="display: none;">
-                <div class="quran-controls">
-                    <button id="closeQuranViewer"><i class="fas fa-times"></i></button>
-                    <select id="translationSelect">
-                        <option value="en">English</option>
-                        <option value="ur">Urdu</option>
-                        <option value="bn">Bengali</option>
-                    </select>
-                </div>
-                <div id="quranText"></div>
-            </div>
-        </section>
-
-        <!-- ===== PRAYER SECTION ===== -->
-        <section id="prayer" class="section">
-            <div class="prayer-times card">
-                <h3>Prayer Times</h3>
-                <div class="prayer-time-list">
-                    <div class="prayer-time-item"><span>Fajr</span><span id="fajrTime">5:12 AM</span></div>
-                    <div class="prayer-time-item"><span>Dhuhr</span><span id="dhuhrTime">12:34 PM</span></div>
-                    <div class="prayer-time-item"><span>Asr</span><span id="asrTime">3:45 PM</span></div>
-                    <div class="prayer-time-item"><span>Maghrib</span><span id="maghribTime">6:20 PM</span></div>
-                    <div class="prayer-time-item"><span>Isha</span><span id="ishaTime">7:56 PM</span></div>
-                </div>
-            </div>
-
-            <div class="qibla-compass card">
-                <h3>Qibla Direction</h3>
-                <div class="compass">
-                    <div class="compass-needle" id="qiblaNeedle">
-                        <i class="fas fa-arrow-up"></i>
-                    </div>
-                    <div class="compass-label">N</div>
-                    <div class="compass-label" style="right: 5px;">E</div>
-                    <div class="compass-label" style="bottom: 5px;">S</div>
-                    <div class="compass-label" style="left: 5px;">W</div>
-                </div>
-                <p id="qiblaDirection">Qibla: 290° (Northwest)</p>
-            </div>
-
-            <div class="prayer-tracker card">
-                <h3>Today's Prayer Tracker</h3>
-                <div class="prayer-checkboxes">
-                    <label><input type="checkbox" /> Fajr</label>
-                    <label><input type="checkbox" /> Dhuhr</label>
-                    <label><input type="checkbox" /> Asr</label>
-                    <label><input type="checkbox" /> Maghrib</label>
-                    <label><input type="checkbox" /> Isha</label>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== DUAS SECTION ===== -->
-        <section id="duas" class="section">
-            <div class="dua-categories">
-                <button class="dua-cat active" data-cat="morning">Morning</button>
-                <button class="dua-cat" data-cat="evening">Evening</button>
-                <button class="dua-cat" data-cat="sleep">Sleep</button>
-                <button class="dua-cat" data-cat="eating">Eating</button>
-                <button class="dua-cat" data-cat="travel">Travel</button>
-                <button class="dua-cat" data-cat="illness">Illness</button>
-                <button class="dua-cat" data-cat="marriage">Marriage</button>
-                <button class="dua-cat" data-cat="hajj">Hajj</button>
-            </div>
-            <div class="dua-list" id="duaList">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <!-- ===== HADITH SECTION ===== -->
-        <section id="hadith" class="section">
-            <div class="hadith-search card">
-                <input type="text" placeholder="Search Hadith..." id="hadithSearch" />
-                <button><i class="fas fa-search"></i></button>
-            </div>
-            <div class="hadith-collections">
-                <button class="collection-btn active" data-collection="bukhari">Bukhari</button>
-                <button class="collection-btn" data-collection="muslim">Muslim</button>
-                <button class="collection-btn" data-collection="abudawud">Abu Dawud</button>
-                <button class="collection-btn" data-collection="tirmidhi">Tirmidhi</button>
-            </div>
-            <div class="hadith-list" id="hadithList">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <!-- ===== AI SECTION ===== -->
-        <section id="ai" class="section">
-            <div class="ai-chat card">
-                <div class="ai-messages" id="aiMessages">
-                    <div class="ai-message bot">
-                        <div class="message-content">
-                            Assalamu Alaikum! I'm your Islamic AI assistant. Ask me anything about Islam, Quran, Hadith, or Islamic practices.
-                        </div>
-                    </div>
-                </div>
-                <div class="ai-input">
-                    <input type="text" id="aiInput" placeholder="Ask a question..." />
-                    <button id="aiSend"><i class="fas fa-paper-plane"></i></button>
-                </div>
-                <div class="ai-sources">
-                    <small>Sources: Quran, Sahih Hadith, Scholarly Consensus</small>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== VIDEOS SECTION ===== -->
-        <section id="videos" class="section">
-            <div class="video-grid" id="videoGrid">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <!-- ===== AUDIO SECTION ===== -->
-        <section id="audio" class="section">
-            <div class="audio-player card">
-                <div class="audio-controls">
-                    <button><i class="fas fa-play"></i></button>
-                    <button><i class="fas fa-pause"></i></button>
-                    <button><i class="fas fa-stop"></i></button>
-                    <button><i class="fas fa-download"></i></button>
-                </div>
-                <div class="audio-progress">
-                    <progress value="0" max="100"></progress>
-                </div>
-                <div class="audio-list" id="audioList">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== COMMUNITY SECTION ===== -->
-        <section id="community" class="section">
-            <div class="community-card card">
-                <h3>Study Groups</h3>
-                <div class="group-list">
-                    <div class="group-item">Tafsir Study Group</div>
-                    <div class="group-item">Arabic Learning Circle</div>
-                    <div class="group-item">Hadith Memorization</div>
-                </div>
-            </div>
-            <div class="community-card card">
-                <h3>Mosque Announcements</h3>
-                <div class="announcement">Jumu'ah prayer at 1:30 PM</div>
-                <div class="announcement">Quran class every Tuesday</div>
-            </div>
-            <div class="community-card card">
-                <h3>Charity Campaigns</h3>
-                <div class="campaign">🌙 Ramadan Food Drive</div>
-                <div class="campaign">🕌 Mosque Renovation Fund</div>
-            </div>
-        </section>
-
-        <!-- ===== ZAKAT SECTION ===== -->
-        <section id="zakat" class="section">
-            <div class="zakat-calculator card">
-                <h3>Zakat Calculator</h3>
-                <div class="form-group">
-                    <label>Total Savings ($)</label>
-                    <input type="number" id="zakatSavings" placeholder="Enter amount..." />
-                </div>
-                <div class="form-group">
-                    <label>Gold (grams)</label>
-                    <input type="number" id="zakatGold" placeholder="Enter gold..." />
-                </div>
-                <div class="form-group">
-                    <label>Silver (grams)</label>
-                    <input type="number" id="zakatSilver" placeholder="Enter silver..." />
-                </div>
-                <button id="calculateZakat">Calculate Zakat</button>
-                <div id="zakatResult" class="zakat-result"></div>
-            </div>
-        </section>
-
-        <!-- ===== RAMADAN SECTION ===== -->
-        <section id="ramadan" class="section">
-            <div class="ramadan-card card">
-                <h3>Ramadan 2026</h3>
-                <div class="ramadan-days">
-                    <div class="day-tracker">
-                        <span>Day</span>
-                        <span class="day-number">15</span>
-                        <span>of 30</span>
-                    </div>
-                    <div class="fasting-tracker">
-                        <span>Fasting: <span id="fastingDays">12</span>/30</span>
-                        <progress value="12" max="30"></progress>
-                    </div>
-                </div>
-                <div class="ramadan-times">
-                    <div>Suhoor: 4:45 AM</div>
-                    <div>Iftar: 6:30 PM</div>
-                </div>
-                <div class="ramadan-planner">
-                    <h4>Daily Goals</h4>
-                    <div>📖 Read 1 Juz</div>
-                    <div>🤲 100 Tasbeeh</div>
-                    <div>💧 8 glasses water</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== HAJJ SECTION ===== -->
-        <section id="hajj" class="section">
-            <div class="hajj-guide card">
-                <h3>Hajj & Umrah Guide</h3>
-                <div class="hajj-steps">
-                    <div class="step">1. Ihram</div>
-                    <div class="step">2. Tawaf</div>
-                    <div class="step">3. Sa'i</div>
-                    <div class="step">4. Arafat</div>
-                    <div class="step">5. Muzdalifah</div>
-                    <div class="step">6. Jamarat</div>
-                    <div class="step">7. Tawaf al-Ifadah</div>
-                </div>
-                <div class="hajj-duas">
-                    <h4>Essential Duas</h4>
-                    <div class="dua-item">لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== KIDS SECTION ===== -->
-        <section id="kids" class="section">
-            <div class="kids-content">
-                <div class="kids-card card">
-                    <h3>📖 Islamic Stories</h3>
-                    <div class="story-list">
-                        <div class="story-item">The Story of Prophet Muhammad ﷺ</div>
-                        <div class="story-item">The Brave King</div>
-                    </div>
-                </div>
-                <div class="kids-card card">
-                    <h3>🎮 Games</h3>
-                    <div class="game-list">
-                        <div class="game-item">Arabic Alphabet Match</div>
-                        <div class="game-item">Prayer Time Quiz</div>
-                    </div>
-                </div>
-                <div class="kids-card card">
-                    <h3>📝 Memorization</h3>
-                    <div class="memorization-tracker">
-                        <div>Short Surahs</div>
-                        <div>Daily Duas</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== PROFILE SECTION ===== -->
-        <section id="profile" class="section">
-            <div class="profile-card card">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <i class="fas fa-user fa-4x"></i>
-                    </div>
-                    <h2>Muslim User</h2>
-                    <p>Member since 2024</p>
-                </div>
-                <div class="profile-stats">
-                    <div class="stat">
-                        <span>Prayers</span>
-                        <span class="stat-value">1,247</span>
-                    </div>
-                    <div class="stat">
-                        <span>Quran Pages</span>
-                        <span class="stat-value">856</span>
-                    </div>
-                    <div class="stat">
-                        <span>Hadith</span>
-                        <span class="stat-value">43</span>
-                    </div>
-                </div>
-                <div class="profile-achievements">
-                    <h4>🏆 Achievements</h4>
-                    <div class="achievement-list">
-                        <span>📖 Quran Reader</span>
-                        <span>🕌 30 Days Prayer</span>
-                        <span>🤲 Dua Master</span>
-                    </div>
-                </div>
-                <button class="btn-primary">Cloud Backup</button>
-            </div>
-        </section>
-
-        <!-- ===== SETTINGS SECTION ===== -->
-        <section id="settings" class="section">
-            <div class="settings-card card">
-                <h3>Settings</h3>
-                <div class="setting-item">
-                    <span>Dark Mode</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="darkModeToggle" />
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="setting-item">
-                    <span>Language</span>
-                    <select id="languageSelect">
-                        <option value="en">English</option>
-                        <option value="ar">العربية</option>
-                        <option value="ur">اردو</option>
-                        <option value="bn">বাংলা</option>
-                    </select>
-                </div>
-                <div class="setting-item">
-                    <span>Theme Color</span>
-                    <div class="theme-colors">
-                        <span class="color-option" style="background: #1a7a5a;" data-color="#1a7a5a"></span>
-                        <span class="color-option" style="background: #2d5a88;" data-color="#2d5a88"></span>
-                        <span class="color-option" style="background: #8b4513;" data-color="#8b4513"></span>
-                        <span class="color-option" style="background: #6a1b4d;" data-color="#6a1b4d"></span>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <span>Notifications</span>
-                    <label class="toggle">
-                        <input type="checkbox" checked />
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="setting-item">
-                    <span>Privacy</span>
-                    <button class="btn-secondary">Manage Privacy</button>
-                </div>
-                <div class="setting-item">
-                    <span>Security</span>
-                    <button class="btn-secondary">Change Password</button>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- ===== MOBILE BOTTOM NAV ===== -->
     <nav class="bottom-nav">
-        <a href="#" class="bottom-nav-item active" data-section="home"><i class="fas fa-home"></i><span>Home</span></a>
-        <a href="#" class="bottom-nav-item" data-section="quran"><i class="fas fa-book-quran"></i><span>Quran</span></a>
-        <a href="#" class="bottom-nav-item" data-section="prayer"><i class="fas fa-mosque"></i><span>Prayer</span></a>
-        <a href="#" class="bottom-nav-item" data-section="duas"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
-        <a href="#" class="bottom-nav-item" data-section="ai"><i class="fas fa-robot"></i><span>AI</span></a>
+        <a href="index.html" class="bottom-nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="quran.html" class="bottom-nav-item"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+        <a href="prayer.html" class="bottom-nav-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+        <a href="duas.html" class="bottom-nav-item"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
+        <a href="ai.html" class="bottom-nav-item"><i class="fas fa-robot"></i><span>AI</span></a>
     </nav>
 
-    <script src="main.js"></script>
+    <script src="js/main.js"></script>
 </body>
-              </html>
+                    </html>
