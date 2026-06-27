@@ -1,13 +1,13 @@
 // ============================================
-// VOICE ASSISTANT MODULE
+// VOICE ASSISTANT WITH YOUR VOICE
 // ============================================
 
 class VoiceAssistantModule {
     constructor() {
         this.isRecording = false;
         this.recognition = null;
-        this.voiceProfileSet = false;
         this.messages = [];
+        this.yourVoiceFile = 'Voice 004.m4a';
         this.encouragements = [
             '💚 MashaAllah, excellent!',
             '🌟 Beautiful recitation!',
@@ -25,8 +25,8 @@ class VoiceAssistantModule {
         this.renderMessages();
         this.setupEventListeners();
         this.initSpeechRecognition();
-        this.checkVoiceProfile();
         this.addWelcomeMessage();
+        this.createVoiceStatusUI();
     }
 
     initSpeechRecognition() {
@@ -73,10 +73,70 @@ class VoiceAssistantModule {
                 document.getElementById('voiceSendBtn')?.click();
             }
         });
+    }
 
-        document.getElementById('setupVoice')?.addEventListener('click', () => {
-            this.setupVoiceProfile();
-        });
+    // ===== YOUR VOICE METHODS =====
+
+    createVoiceStatusUI() {
+        const voiceCard = document.querySelector('.voice-assistant-card');
+        if (!voiceCard) return;
+
+        const statusDiv = document.createElement('div');
+        statusDiv.style.cssText = `
+            padding: 12px 16px;
+            background: var(--primary-bg);
+            border-radius: var(--radius-sm);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        `;
+        statusDiv.innerHTML = `
+            <span>
+                <i class="fas fa-check-circle" style="color:var(--primary);"></i> 
+                ✅ Your voice is loaded: <strong>Voice 004.m4a</strong>
+            </span>
+            <button onclick="window.voiceAssistantModule?.playYourVoice()" style="padding:6px 16px;background:var(--primary);color:white;border:none;border-radius:50px;cursor:pointer;">
+                <i class="fas fa-play"></i> Test Voice
+            </button>
+        `;
+        
+        const chatDiv = voiceCard.querySelector('.voice-chat');
+        if (chatDiv) {
+            voiceCard.insertBefore(statusDiv, chatDiv);
+        }
+    }
+
+    // Play your voice
+    playYourVoice() {
+        try {
+            const audio = new Audio('js/Voice 004.m4a');
+            audio.play();
+            showToast('🔊 Playing your voice');
+            return true;
+        } catch (e) {
+            console.error('Error playing voice:', e);
+            this.speakWithYourVoice();
+            return false;
+        }
+    }
+
+    // Fallback
+    speakWithYourVoice() {
+        if (window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance('Bismillah, repeat after me');
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Use your voice for corrections
+    correctWithYourVoice() {
+        this.playYourVoice();
+        this.addMessage('bot', '🔊 Listen to the teacher\'s voice for correct pronunciation.');
     }
 
     toggleRecording() {
@@ -94,8 +154,9 @@ class VoiceAssistantModule {
         }
 
         this.isRecording = true;
-        document.getElementById('voiceInputBtn').innerHTML = '<i class="fas fa-stop"></i> Stop';
-        document.getElementById('voiceInputBtn').style.background = '#ef4444';
+        const btn = document.getElementById('voiceInputBtn');
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        btn.style.background = '#ef4444';
         
         try {
             this.recognition.start();
@@ -114,8 +175,9 @@ class VoiceAssistantModule {
             }
         }
         this.isRecording = false;
-        document.getElementById('voiceInputBtn').innerHTML = '<i class="fas fa-microphone"></i> Speak';
-        document.getElementById('voiceInputBtn').style.background = '';
+        const btn = document.getElementById('voiceInputBtn');
+        btn.innerHTML = '<i class="fas fa-microphone"></i> Speak';
+        btn.style.background = '';
         showToast('⏹️ Listening stopped');
     }
 
@@ -130,24 +192,20 @@ class VoiceAssistantModule {
         const lower = text.toLowerCase();
         let response = '';
         
-        // Check for Quran recitation requests
         if (lower.includes('recite') || lower.includes('read') || lower.includes('quran')) {
-            response = this.getRandomEncouragement() + ' Let me help you with recitation. Would you like to practice a specific verse?';
-        }
-        // Check for prayer questions
-        else if (lower.includes('pray') || lower.includes('salah') || lower.includes('prayer')) {
-            response = this.getRandomEncouragement() + ' Prayer is the second pillar of Islam. It connects us with Allah. Would you like me to explain the steps of Wudu or the prayer times?';
-        }
-        // Check for dua requests
-        else if (lower.includes('dua') || lower.includes('supplication')) {
-            response = this.getRandomEncouragement() + ' Duas are a beautiful way to connect with Allah. Here\'s a simple dua you can recite: "Rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan waqina azaban-nar."';
-        }
-        // General response
-        else {
-            response = this.getRandomEncouragement() + ' Thank you for asking. I\'m here to help you with your Islamic learning journey. Could you clarify your question?';
+            response = this.getRandomEncouragement() + ' Let me help you with recitation. Listen to the teacher.';
+            this.correctWithYourVoice();
+        } else if (lower.includes('pray') || lower.includes('salah')) {
+            response = this.getRandomEncouragement() + ' Prayer is the second pillar of Islam.';
+        } else if (lower.includes('dua') || lower.includes('supplication')) {
+            response = this.getRandomEncouragement() + ' Duas are a beautiful way to connect with Allah.';
+        } else if (lower.includes('mistake') || lower.includes('wrong')) {
+            response = this.getRandomEncouragement() + ' Let me help you correct that.';
+            this.correctWithYourVoice();
+        } else {
+            response = this.getRandomEncouragement() + ' I\'m here to help you with your Islamic learning journey.';
         }
         
-        // Add bot response with delay for natural feel
         setTimeout(() => {
             this.addMessage('bot', response);
         }, 500);
@@ -162,7 +220,6 @@ class VoiceAssistantModule {
         this.messages.push(message);
         this.renderMessages();
         
-        // Speak the response if it's from bot
         if (role === 'bot') {
             this.speakResponse(content);
         }
@@ -194,59 +251,11 @@ class VoiceAssistantModule {
         }
     }
 
-    setupVoiceProfile() {
-        if (!this.recognition) {
-            showToast('⚠️ Speech recognition not available');
-            return;
-        }
-
-        showToast('🎙️ Please recite "Bismillah" to set up your voice profile');
-        
-        // Set up a one-time recording
-        const tempRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        tempRecognition.lang = 'en-US';
-        tempRecognition.continuous = false;
-        
-        tempRecognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            if (transcript.toLowerCase().includes('bismillah')) {
-                this.voiceProfileSet = true;
-                document.getElementById('voiceStatus').innerHTML = `
-                    <span class="status-dot active"></span>
-                    <span style="color:var(--primary);">✅ Voice profile set successfully!</span>
-                `;
-                document.getElementById('setupVoice').textContent = '✅ Profile Set';
-                document.getElementById('setupVoice').style.background = 'var(--primary)';
-                showToast('✅ Voice profile created! Your voice will be used for feedback.');
-            } else {
-                showToast('⚠️ Please say "Bismillah" to set up your profile');
-            }
-        };
-        
-        tempRecognition.start();
-        setTimeout(() => {
-            try { tempRecognition.stop(); } catch (e) {}
-        }, 5000);
-    }
-
-    checkVoiceProfile() {
-        const savedProfile = localStorage.getItem('voiceProfileSet');
-        if (savedProfile === 'true') {
-            this.voiceProfileSet = true;
-            document.getElementById('voiceStatus').innerHTML = `
-                <span class="status-dot active"></span>
-                <span style="color:var(--primary);">✅ Voice profile active</span>
-            `;
-            document.getElementById('setupVoice').textContent = '✅ Profile Set';
-            document.getElementById('setupVoice').style.background = 'var(--primary)';
-        }
-    }
-
     addWelcomeMessage() {
-        this.addMessage('bot', 'Assalamu Alaikum! I\'m your voice assistant. I\'ll help you with recitation and provide encouraging feedback. 🎙️');
+        this.addMessage('bot', 'Assalamu Alaikum! I\'m your voice assistant. Your teacher\'s voice is loaded and ready to help you with recitation. 🎙️');
         
         setTimeout(() => {
-            this.addMessage('bot', '💡 You can say: "Recite Quran", "Teach me a Dua", or "Help me with prayer"');
+            this.addMessage('bot', '💡 You can say: "Recite Quran", "Teach me a Dua", "Help me with prayer", or "Correct my recitation"');
         }, 1000);
     }
 }
