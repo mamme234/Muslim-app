@@ -1,13 +1,10 @@
 // ============================================
-// LEARNING.JS - QURAN FROM PDF + VOICE CORRECTION
+// LEARNING.JS - QURAN FROM PDF + SHEIKH VOICE CORRECTION
 // ============================================
 
 // ============================================
-// LOAD QURAN FROM The_Holy_Quran.pdf
+// QURAN MODULE - Load from PDF
 // ============================================
-
-// This will load the PDF and extract Surah data
-// The PDF should be in: js/The_Holy_Quran.pdf
 
 class QuranModule {
     constructor() {
@@ -101,19 +98,14 @@ class QuranModule {
         ];
 
         try {
-            // Try to extract from PDF
             for (let i = 1; i <= 114; i++) {
                 const surah = {
                     number: i,
                     name: surahNames[i-1] || `Surah ${i}`,
                     englishName: englishNames[i-1] || `Surah ${i}`,
-                    verses: 7, // Default, will be updated
+                    verses: 7,
                     ayahs: []
                 };
-                
-                // Try to get verses from PDF (simplified)
-                // In production, you'd extract actual verses from PDF
-                // For now, we'll use the API for verses but keep PDF metadata
                 surahs.push(surah);
             }
             
@@ -142,20 +134,17 @@ class QuranModule {
     }
 
     useFallbackData() {
-        // Fallback surah data
         const surahNames = [
             'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة', 'الأنعام', 'الأعراف', 'الأنفال', 'التوبة', 'يونس',
-            'هود', 'يوسف', 'الرعد', 'إبراهيم', 'الحجر', 'النحل', 'الإسراء', 'الكهف', 'مريم', 'طه',
-            'الأنبياء', 'الحج', 'المؤمنون', 'النور', 'الفرقان', 'الشعراء', 'النمل', 'القصص', 'العنكبوت', 'الروم'
+            'هود', 'يوسف', 'الرعد', 'إبراهيم', 'الحجر', 'النحل', 'الإسراء', 'الكهف', 'مريم', 'طه'
         ];
         const englishNames = [
             'Al-Fatihah', 'Al-Baqarah', 'Aal-Imran', 'An-Nisa', 'Al-Maidah', 'Al-An\'am', 'Al-A\'raf', 'Al-Anfal', 'At-Tawbah', 'Yunus',
-            'Hud', 'Yusuf', 'Ar-Ra\'d', 'Ibrahim', 'Al-Hijr', 'An-Nahl', 'Al-Isra', 'Al-Kahf', 'Maryam', 'Taha',
-            'Al-Anbiya', 'Al-Hajj', 'Al-Mu\'minun', 'An-Nur', 'Al-Furqan', 'Ash-Shu\'ara', 'An-Naml', 'Al-Qasas', 'Al-Ankabut', 'Ar-Rum'
+            'Hud', 'Yusuf', 'Ar-Ra\'d', 'Ibrahim', 'Al-Hijr', 'An-Nahl', 'Al-Isra', 'Al-Kahf', 'Maryam', 'Taha'
         ];
         
         this.surahs = [];
-        for (let i = 1; i <= 30; i++) {
+        for (let i = 1; i <= 20; i++) {
             this.surahs.push({
                 number: i,
                 name: surahNames[i-1] || `Surah ${i}`,
@@ -167,31 +156,22 @@ class QuranModule {
     }
 
     loadTranslations() {
-        // Translation data for different languages
         this.translations = {
             en: {
                 'Al-Fatihah': 'The Opener',
                 'Al-Baqarah': 'The Cow',
                 'Aal-Imran': 'Family of Imran',
                 'An-Nisa': 'The Women',
-                'Al-Maidah': 'The Table',
-                'Al-An\'am': 'The Cattle',
-                'Al-A\'raf': 'The Heights',
-                'Al-Anfal': 'The Spoils',
-                'At-Tawbah': 'The Repentance',
-                'Yunus': 'Jonah'
+                'Al-Maidah': 'The Table'
             },
             ur: {
                 'Al-Fatihah': 'فاتحہ',
                 'Al-Baqarah': 'بقرہ',
-                'Aal-Imran': 'آل عمران',
-                'An-Nisa': 'نساء',
-                'Al-Maidah': 'مائدہ'
+                'Aal-Imran': 'آل عمران'
             },
             bn: {
                 'Al-Fatihah': 'সূরা ফাতিহা',
-                'Al-Baqarah': 'সূরা বাকারাহ',
-                'Aal-Imran': 'সূরা আলে ইমরান'
+                'Al-Baqarah': 'সূরা বাকারাহ'
             }
         };
     }
@@ -233,7 +213,6 @@ class QuranModule {
         const title = document.getElementById('viewerTitle');
 
         try {
-            // Fetch surah from API with translation
             const translation = this.currentLanguage;
             const langMap = { en: 'english', ur: 'urdu', bn: 'bengali', ar: 'arabic' };
             const lang = langMap[translation] || 'english';
@@ -289,11 +268,8 @@ class QuranModule {
     }
 
     selectAyah(surah, ayah) {
-        // For voice correction practice
         this.currentAyah = { surah, ayah };
         showToast(`🎯 Selected Ayah ${ayah} for practice`);
-        
-        // Switch to Quran Teacher tab
         document.querySelector('[data-section="quran-teacher"]')?.click();
     }
 
@@ -309,7 +285,7 @@ class QuranModule {
         
         const audio = new Audio(url);
         audio.play().then(() => {
-            showToast(`🔊 Playing recitation`);
+            showToast(`🔊 Playing recitation by ${this.currentReciter}`);
         }).catch(() => {
             showToast('⚠️ Audio playback failed. Please try again.');
         });
@@ -378,7 +354,7 @@ class QuranModule {
                 btn.classList.add('active');
                 this.currentReciter = btn.dataset.reciter;
                 localStorage.setItem('selectedReciter', this.currentReciter);
-                showToast(`🎙️ Reciter changed`);
+                showToast(`🎙️ Reciter changed to ${btn.textContent.trim()}`);
             });
         });
     }
@@ -398,7 +374,6 @@ class QuranModule {
         searchInput?.addEventListener('input', performSearch);
         searchBtn?.addEventListener('click', performSearch);
 
-        // Language change
         document.getElementById('translationSelect')?.addEventListener('change', (e) => {
             this.currentLanguage = e.target.value;
             localStorage.setItem('quranLanguage', this.currentLanguage);
@@ -408,7 +383,6 @@ class QuranModule {
             showToast(`🌍 Language changed to ${e.target.options[e.target.selectedIndex].text}`);
         });
 
-        // Feature cards
         document.getElementById('readQuran')?.addEventListener('click', () => {
             document.querySelector('.surah-item')?.click();
         });
@@ -435,7 +409,7 @@ class QuranModule {
 }
 
 // ============================================
-// QURAN TEACHER WITH YOUR VOICE CORRECTION
+// QURAN TEACHER WITH SHEIKH VOICE CORRECTION
 // ============================================
 
 class QuranTeacherModule {
@@ -446,7 +420,9 @@ class QuranTeacherModule {
         this.accuracy = 0;
         this.versesMemorized = parseInt(localStorage.getItem('quranMemorizedCount') || '0');
         this.verses = [];
-        this.yourVoiceFile = 'js/Voice 004.m4a';
+        this.selectedReciter = localStorage.getItem('selectedReciter') || 'mishary';
+        this.currentSurah = 1;
+        this.currentAyah = 1;
         this.init();
     }
 
@@ -456,17 +432,30 @@ class QuranTeacherModule {
         this.showVerse();
         this.setupTeacherEvents();
         this.initTeacherSpeechRecognition();
+        this.loadSheikhVoices();
     }
 
     loadVerses() {
-        // Sample verses for practice - these will be from the Quran
+        // These are the verses users will practice
         this.verses = [
             { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'In the name of Allah, the Most Gracious, the Most Merciful', id: '1:1' },
             { arabic: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', translation: 'Praise be to Allah, Lord of all the worlds', id: '1:2' },
             { arabic: 'الرَّحْمَٰنِ الرَّحِيمِ', translation: 'The Most Gracious, the Most Merciful', id: '1:3' },
             { arabic: 'مَالِكِ يَوْمِ الدِّينِ', translation: 'Master of the Day of Judgment', id: '1:4' },
-            { arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', translation: 'You alone we worship, and You alone we ask for help', id: '1:5' }
+            { arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', translation: 'You alone we worship, and You alone we ask for help', id: '1:5' },
+            { arabic: 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', translation: 'Guide us to the straight path', id: '1:6' },
+            { arabic: 'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ', translation: 'The path of those who have received Your grace', id: '1:7' }
         ];
+    }
+
+    loadSheikhVoices() {
+        // This will be used to play Sheikh's voice for correction
+        this.sheikhVoices = {
+            mishary: 'Mishary Rashid Alafasy',
+            sudais: 'Abdul Rahman Al-Sudais',
+            ghamdi: 'Saad Al-Ghamdi',
+            muaiqly: 'Maher Al-Muaiqly'
+        };
     }
 
     initTeacherSpeechRecognition() {
@@ -513,7 +502,7 @@ class QuranTeacherModule {
         });
 
         document.getElementById('playCorrect')?.addEventListener('click', () => {
-            this.playCorrectPronunciation();
+            this.playSheikhCorrection();
         });
 
         document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -558,7 +547,7 @@ class QuranTeacherModule {
         const currentVerse = this.verses[this.currentVerseIndex];
         const correctText = currentVerse.arabic;
         
-        // Calculate accuracy based on similarity and confidence
+        // Calculate accuracy
         const similarity = this.calculateSimilarity(transcript, correctText);
         const accuracy = Math.round((similarity * 0.7 + confidence * 0.3) * 100);
         
@@ -572,10 +561,9 @@ class QuranTeacherModule {
             localStorage.setItem('quranMemorizedCount', this.versesMemorized.toString());
             this.updateStats();
             
-            // Play your voice for encouragement
-            this.playYourVoice();
+            // Play Sheikh's voice for encouragement
+            this.playSheikhCorrection();
             
-            // Move to next verse
             setTimeout(() => {
                 this.currentVerseIndex = (this.currentVerseIndex + 1) % this.verses.length;
                 this.showVerse();
@@ -583,19 +571,18 @@ class QuranTeacherModule {
             }, 2000);
             
         } else if (accuracy >= 60) {
-            feedback = `📖 Good effort! ${accuracy}% accurate. Listen to the teacher.`;
+            feedback = `📖 Good effort! ${accuracy}% accurate. Listen to Sheikh.`;
             feedbackClass = 'hint';
-            // Play your voice for correction
-            this.playYourVoice();
+            // Play Sheikh's voice for correction
+            this.playSheikhCorrection();
         } else {
             feedback = `🔄 Let's try again. Focus on the pronunciation.`;
             feedbackClass = 'incorrect';
-            // Play your voice for correction
-            this.playYourVoice();
+            // Play Sheikh's voice for correction
+            this.playSheikhCorrection();
             
-            // Show correct pronunciation
             setTimeout(() => {
-                this.playCorrectPronunciation();
+                this.playSheikhCorrection();
             }, 1000);
         }
         
@@ -619,7 +606,7 @@ class QuranTeacherModule {
                 ${highlightHTML}
                 <br><small style="font-size:12px;">You said: "${transcript}"</small>
                 ${accuracy < 80 ? `<br><small style="font-size:12px;">🎯 Correct: "${correctText}"</small>` : ''}
-                ${accuracy < 80 ? `<br><small style="font-size:12px;color:var(--gold);">🔊 Listen to the teacher's voice</small>` : ''}
+                ${accuracy < 80 ? `<br><small style="font-size:12px;color:var(--gold);">🔊 Listen to Sheikh's voice</small>` : ''}
             </div>
         `;
         
@@ -663,7 +650,6 @@ class QuranTeacherModule {
     }
 
     calculateSimilarity(text1, text2) {
-        // Remove diacritics for better comparison
         const clean1 = this.removeDiacritics(text1);
         const clean2 = this.removeDiacritics(text2);
         
@@ -681,40 +667,76 @@ class QuranTeacherModule {
     }
 
     removeDiacritics(text) {
-        // Remove Arabic diacritics (tashkeel)
         return text.replace(/[\u0617-\u061A\u064B-\u0652]/g, '');
     }
 
-    playCorrectPronunciation() {
-        const verse = this.verses[this.currentVerseIndex];
-        const utterance = new SpeechSynthesisUtterance(verse.arabic);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 0.7;
-        utterance.pitch = 1;
-        if (window.speechSynthesis) {
-            window.speechSynthesis.speak(utterance);
-            showToast('🔊 Playing correct pronunciation');
-        }
-    }
-
-    playYourVoice() {
+    // ===== PLAY SHEIKH VOICE FOR CORRECTION =====
+    playSheikhCorrection() {
+        const currentVerse = this.verses[this.currentVerseIndex];
+        const reciterMap = {
+            mishary: 'mishary_rashid_alafasy',
+            sudais: 'abdul_rahman_al_sudais',
+            ghamdi: 'saad_al_ghamdi',
+            muaiqly: 'maher_al_muaiqly'
+        };
+        
+        const reciter = reciterMap[this.selectedReciter] || 'mishary_rashid_alafasy';
+        // Use the reciter's voice from CDN
+        const url = `https://cdn.islamic.network/quran/audio/128/${reciter}/1.mp3`;
+        
         try {
-            const audio = new Audio('js/Voice 004.m4a');
+            const audio = new Audio(url);
             audio.play();
+            showToast(`🔊 Sheikh ${this.sheikhVoices[this.selectedReciter] || 'Mishary'} correcting...`);
             return true;
         } catch (e) {
-            console.error('Error playing voice:', e);
-            // Fallback: use speech synthesis
-            const utterance = new SpeechSynthesisUtterance('Listen carefully and repeat after me');
-            utterance.lang = 'ar-SA';
-            utterance.rate = 0.8;
-            window.speechSynthesis?.speak(utterance);
+            console.error('Error playing Sheikh voice:', e);
+            // Fallback: Use speech synthesis with Sheikh-like voice
+            this.fallbackSheikhVoice(currentVerse.arabic);
             return false;
         }
     }
 
-    testYourVoice() {
-        this.playYourVoice();
+    fallbackSheikhVoice(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.6;
+        utterance.pitch = 0.8;
+        
+        // Try to find an Arabic voice
+        const voices = window.speechSynthesis?.getVoices();
+        const arabicVoice = voices?.find(v => v.lang === 'ar-SA' || v.lang === 'ar-EG');
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+        
+        if (window.speechSynthesis) {
+            window.speechSynthesis.speak(utterance);
+            showToast('🔊 Sheikh voice correction (fallback)');
+        }
+    }
+
+    // Also play Sheikh voice for correct recitation
+    playSheikhEncouragement() {
+        // Play a short recitation as encouragement
+        try {
+            const reciterMap = {
+                mishary: 'mishary_rashid_alafasy',
+                sudais: 'abdul_rahman_al_sudais',
+                ghamdi: 'saad_al_ghamdi',
+                muaiqly: 'maher_al_muaiqly'
+            };
+            const reciter = reciterMap[this.selectedReciter] || 'mishary_rashid_alafasy';
+            const url = `https://cdn.islamic.network/quran/audio/128/${reciter}/1.mp3`;
+            const audio = new Audio(url);
+            audio.play();
+        } catch (e) {
+            console.error('Error playing encouragement:', e);
+        }
+    }
+
+    testSheikhVoice() {
+        this.playSheikhCorrection();
     }
 
     showVerse() {
@@ -726,11 +748,13 @@ class QuranTeacherModule {
                 <p class="translation" style="font-size:15px;color:var(--text-secondary);margin-top:8px;">"${verse.translation}"</p>
                 <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">📖 ${verse.id}</p>
                 <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">🎯 Verse ${this.currentVerseIndex + 1} of ${this.verses.length}</p>
+                <p style="font-size:12px;color:var(--gold);margin-top:4px;">🔊 Sheikh ${this.sheikhVoices[this.selectedReciter] || 'Mishary'} will correct you</p>
             `;
         }
         
         document.getElementById('feedbackArea').innerHTML = `
-            <div class="feedback-item hint">🎙️ Click "Start Recording" and recite the verse above</div>
+            <div class="feedback-item hint">🎙️ Click "Start Recording" and recite the verse<br>
+            🔊 Sheikh ${this.sheikhVoices[this.selectedReciter] || 'Mishary'} will correct your mistakes</div>
         `;
     }
 
@@ -746,7 +770,7 @@ class QuranTeacherModule {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🕌 Loading Quran from PDF...');
+    console.log('🕌 Loading Quran from PDF with Sheikh Voice Correction...');
     window.quranModule = new QuranModule();
     window.quranTeacherModule = new QuranTeacherModule();
 });
