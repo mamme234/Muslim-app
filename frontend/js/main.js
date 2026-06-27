@@ -1,22 +1,33 @@
 // ============================================
 // MUSLIM APP - MAIN JAVASCRIPT
-// Shared functionality across all pages
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ===== THEME =====
+    // Initialize theme
     initTheme();
     
-    // ===== SIDEBAR =====
+    // Initialize sidebar
     initSidebar();
     
-    // ===== NOTIFICATIONS =====
+    // Initialize navigation
+    initNavigation();
+    
+    // Initialize notifications
     initNotifications();
     
-    // ===== PRAYER COUNTDOWN (on home page) =====
+    // Initialize language
+    initLanguage();
+    
+    // Initialize prayer countdown (if on home)
     if (document.getElementById('prayerCountdown')) {
         initPrayerCountdown();
     }
+    
+    // Initialize daily content
+    initDailyContent();
+    
+    // Initialize islamic date
+    initIslamicDate();
 });
 
 // ============================================
@@ -42,7 +53,7 @@ function applyTheme(isDark) {
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     const icon = document.querySelector('#themeToggle i');
     if (icon) {
-        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        icon.className = isDark ? 'fas fa-sun' : 'fa-solid fa-moon';
     }
 }
 
@@ -66,7 +77,7 @@ function initSidebar() {
         });
     }
     
-    // Close sidebar on outside click (mobile)
+    // Close sidebar on outside click
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
             const isClickInside = sidebar?.contains(e.target);
@@ -76,14 +87,59 @@ function initSidebar() {
             }
         }
     });
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function initNavigation() {
+    const menuItems = document.querySelectorAll('.menu-item, .bottom-nav-item');
+    const sections = document.querySelectorAll('.section');
+    const pageTitle = document.getElementById('pageTitle');
     
-    // Active link highlighting
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.menu-item, .bottom-nav-item').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && currentPath.includes(href)) {
-            link.classList.add('active');
-        }
+    const titleMap = {
+        home: '🏠 Home',
+        quran: '📖 Quran',
+        'quran-teacher': '🎙️ AI Quran Teacher',
+        'voice-assistant': '🗣️ Voice Assistant',
+        hadith: '📚 Hadith',
+        duas: '🤲 Duas & Adhkar',
+        prayer: '🕌 Prayer',
+        learning: '🎓 Learning',
+        videos: '🎥 Videos',
+        audio: '🎧 Audio',
+        community: '👨‍👩‍👧 Community',
+        ramadan: '🌙 Ramadan',
+        hajj: '🕋 Hajj & Umrah',
+        kids: '👶 Kids',
+        ai: '🤖 AI Assistant',
+        profile: '👤 Profile',
+        settings: '⚙️ Settings'
+    };
+    
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = item.dataset.section;
+            if (!section) return;
+            
+            // Update active states
+            menuItems.forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Show section
+            sections.forEach(s => s.classList.remove('active'));
+            const targetSection = document.getElementById(section);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update title
+            pageTitle.textContent = titleMap[section] || section;
+            
+            // Close sidebar on mobile
+            document.getElementById('sidebar')?.classList.remove('open');
+        });
     });
 }
 
@@ -97,7 +153,44 @@ function initNotifications() {
 }
 
 // ============================================
-// PRAYER COUNTDOWN (Home page)
+// LANGUAGE
+// ============================================
+function initLanguage() {
+    const langToggle = document.getElementById('languageToggle');
+    if (langToggle) {
+        langToggle.addEventListener('click', () => {
+            const select = document.getElementById('languageSelect');
+            if (select) {
+                select.focus();
+                // Create a simple language switcher
+                const currentLang = select.value;
+                const languages = ['en', 'ar', 'om', 'am', 'so', 'ur', 'tr', 'fr', 'id'];
+                const currentIndex = languages.indexOf(currentLang);
+                const nextIndex = (currentIndex + 1) % languages.length;
+                select.value = languages[nextIndex];
+                select.dispatchEvent(new Event('change'));
+                showToast('🌍 Language changed');
+            }
+        });
+    }
+    
+    const langSelect = document.getElementById('languageSelect');
+    if (langSelect) {
+        langSelect.addEventListener('change', () => {
+            localStorage.setItem('language', langSelect.value);
+            // In production, would load translations
+        });
+        
+        // Load saved language
+        const savedLang = localStorage.getItem('language');
+        if (savedLang) {
+            langSelect.value = savedLang;
+        }
+    }
+}
+
+// ============================================
+// PRAYER COUNTDOWN (Home)
 // ============================================
 function initPrayerCountdown() {
     const times = {
@@ -186,6 +279,67 @@ function initPrayerCountdown() {
 }
 
 // ============================================
+// DAILY CONTENT
+// ============================================
+function initDailyContent() {
+    // Daily Verse
+    const verses = [
+        { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: '"Indeed, with hardship comes ease"', ref: 'Surah Ash-Sharh 94:6' },
+        { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', translation: '"And whoever fears Allah, He will make a way out for him"', ref: 'Surah At-Talaq 65:2' },
+        { arabic: 'وَالَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ', translation: '"And those who believe and do righteous deeds"', ref: 'Surah Al-Baqarah 2:25' },
+    ];
+    const verse = verses[Math.floor(Math.random() * verses.length)];
+    const verseContainer = document.getElementById('dailyVerse');
+    if (verseContainer) {
+        verseContainer.querySelector('.arabic').textContent = verse.arabic;
+        verseContainer.querySelector('.translation').textContent = verse.translation;
+        verseContainer.querySelector('.reference').textContent = verse.ref;
+    }
+    
+    // Daily Hadith
+    const hadiths = [
+        { text: '"The best of you are those who are best to their families"', ref: 'Sunan Ibn Majah 1977' },
+        { text: '"Whoever believes in Allah and the Last Day, let him speak good or remain silent"', ref: 'Sahih Bukhari 6018' },
+        { text: '"The strong person is not the one who can wrestle, but the one who controls himself at times of anger"', ref: 'Sahih Bukhari 6114' },
+    ];
+    const hadith = hadiths[Math.floor(Math.random() * hadiths.length)];
+    const hadithContainer = document.getElementById('dailyHadith');
+    if (hadithContainer) {
+        hadithContainer.querySelector('.hadith-text').textContent = hadith.text;
+        hadithContainer.querySelector('.hadith-reference').textContent = hadith.ref;
+    }
+    
+    // Daily Dua
+    const duas = [
+        { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا', translation: '"O Allah, I ask You for beneficial knowledge"' },
+        { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ', translation: '"O Allah, I ask You for well-being"' },
+        { arabic: 'رَبِّ زِدْنِي عِلْمًا', translation: '"My Lord, increase me in knowledge"' },
+    ];
+    const dua = duas[Math.floor(Math.random() * duas.length)];
+    const duaContainer = document.getElementById('dailyDua');
+    if (duaContainer) {
+        duaContainer.querySelector('.dua-arabic').textContent = dua.arabic;
+        duaContainer.querySelector('.dua-translation').textContent = dua.translation;
+    }
+}
+
+// ============================================
+// ISLAMIC DATE
+// ============================================
+function initIslamicDate() {
+    const dateEl = document.getElementById('islamicDate');
+    if (dateEl) {
+        // Simplified Islamic date
+        const months = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', 'Sha\'ban', 'Ramadan', 'Shawwal', 'Dhul-Qadah', 'Dhul-Hijjah'];
+        const date = new Date();
+        // Approximate Islamic date (simplified)
+        const islamicDay = Math.floor((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) % 30 + 1;
+        const islamicMonth = Math.floor(((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) / 30) % 12;
+        dateEl.textContent = `${islamicDay} ${months[islamicMonth]} 1446 AH`;
+    }
+}
+
+// ============================================
 // UTILITY FUNCTIONS
 // ============================================
 
@@ -198,16 +352,18 @@ function showToast(message, duration = 3000) {
     toast.className = 'toast-notification';
     toast.style.cssText = `
         position: fixed;
-        bottom: 80px;
+        bottom: 100px;
         left: 50%;
         transform: translateX(-50%);
         background: var(--bg-card);
-        padding: 12px 24px;
+        padding: 14px 28px;
         border-radius: var(--radius-full);
-        box-shadow: var(--shadow-hover);
+        box-shadow: var(--shadow-lg);
         z-index: 9999;
         font-weight: 500;
-        border-left: 4px solid var(--primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        animation: slideUp 0.3s ease;
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -231,14 +387,6 @@ function shareContent(text, title = 'Muslim App') {
             showToast('📋 Copied to clipboard!');
         });
     }
-}
-
-// Get today's date in Islamic format (simplified)
-function getIslamicDate() {
-    const months = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', 'Sha\'ban', 'Ramadan', 'Shawwal', 'Dhul-Qadah', 'Dhul-Hijjah'];
-    // Simplified - would use a proper Islamic date library in production
-    const date = new Date();
-    return `${date.getDate()} ${months[date.getMonth()]}`;
 }
 
 // ============================================
