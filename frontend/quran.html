@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quran - Muslim App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        .quran-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .feature-card i {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .feature-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .surah-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .surah-item:hover {
+            background: var(--primary-bg);
+        }
+        .surah-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .surah-number {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+        }
+        .surah-name {
+            font-weight: 600;
+        }
+        .surah-english {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .surah-verses {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .quran-viewer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-body);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .quran-viewer.active {
+            display: block;
+        }
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .viewer-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .viewer-controls select {
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(0,0,0,0.1);
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .ayah {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .ayah-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--primary-bg);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-right: 12px;
+        }
+        .ayah-text {
+            font-size: 20px;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+        .ayah-translation {
+            margin-top: 6px;
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .close-viewer {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        .search-box button {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+        }
+        .bookmarks-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .bookmark-item {
+            padding: 6px 16px;
+            background: var(--primary-bg);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .progress-tracker {
+            margin: 15px 0;
+        }
+        .progress-tracker progress {
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            accent-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar (same as index) -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-mosque"></i>
+                <span>MuslimApp</span>
+            </div>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="index.html" class="menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="quran.html" class="menu-item active"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+            <a href="prayer.html" class="menu-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+            <a href="duas.html" class="menu-item"><i class="fas fa-hands-praying"></i><span>Duas & Adhkar</span></a>
+            <a href="hadith.html" class="menu-item"><i class="fas fa-scroll"></i><span>Hadith</span></a>
+            <a href="ai.html" class="menu-item"><i class="fas fa-robot"></i><span>AI Assistant</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-video"></i><span>Videos</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-headphones"></i><span>Audio</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-users"></i><span>Community</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-hand-holding-heart"></i><span>Zakat</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-moon"></i><span>Ramadan</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-kaaba"></i><span>Hajj & Umrah</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-child"></i><span>Kids</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-user"></i><span>Profile</span></a>
+            <a href="#" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+            <h1>Quran</h1>
+            <div class="topbar-actions">
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="notifications"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+            </div>
+        </header>
+
+        <!-- Quran Features -->
+        <div class="quran-features">
+            <div class="feature-card" id="readQuran">
+                <i class="fas fa-book-open"></i>
+                <h4>Read Quran</h4>
+            </div>
+            <div class="feature-card" id="bookmarks">
+                <i class="fas fa-bookmark"></i>
+                <h4>Bookmarks</h4>
+            </div>
+            <div class="feature-card" id="searchQuran">
+                <i class="fas fa-search"></i>
+                <h4>Search</h4>
+            </div>
+            <div class="feature-card" id="memorization">
+                <i class="fas fa-brain"></i>
+                <h4>Memorization</h4>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-tracker card">
+            <h4>Reading Progress</h4>
+            <progress value="15" max="114"></progress>
+            <span style="font-size: 13px; color: var(--text-muted);">15 of 114 Surahs</span>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box card">
+            <input type="text" id="quranSearch" placeholder="Search Quran by Surah name..." />
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <!-- Surah List -->
+        <div class="card">
+            <h3>All Surahs</h3>
+            <div id="surahList"></div>
+        </div>
+
+        <!-- Bookmarks -->
+        <div class="card">
+            <h3>📑 Bookmarks</h3>
+            <div class="bookmarks-list" id="bookmarksList">
+                <span class="bookmark-item">Al-Baqarah 2:255</span>
+                <span class="bookmark-item">Yasin 36:1</span>
+                <span class="bookmark-item">Al-Mulk 67:1</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Quran Viewer Modal -->
+    <div class="quran-viewer" id="quranViewer">
+        <div class="viewer-header">
+            <h2 id="viewerTitle">Surah Name</h2>
+            <div class="viewer-controls">
+                <select id="translationSelect">
+                    <option value="en">English</option>
+                    <option value="ur">Urdu</option>
+                    <option value="bn">Bengali</option>
+                    <option value="ar">Arabic</option>
+                </select>
+                <button class="close-viewer" id="closeViewer">✕</button>
+            </div>
+        </div>
+        <div id="quranText"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="quran.html" class="bottom-nav-item active"><i class="fas fa-book-quran"></i><span>Quran</span></a>
+        <a href="prayer.html" class="bottom-nav-item"><i class="fas fa-mosque"></i><span>Prayer</span></a>
+        <a href="duas.html" class="bottom-nav-item"><i class="fas fa-hands-praying"></i><span>Duas</span></a>
+        <a href="ai.html" class="bottom-nav-item"><i class="fas fa-robot"></i><span>AI</span></a>
+    </nav>
+
+    <script src="js/main.js"></script>
+    <script src="js/quran.js"></script>
+</body>
+  </html>
