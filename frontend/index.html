@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>Muslim App - Your Islamic Companion</title>
+    <title>Muslim App - Quran Voice Teacher</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
@@ -335,10 +335,21 @@
         <section id="quran-teacher" class="section">
             <div class="section-header">
                 <h2>🎙️ AI Quran Teacher</h2>
-                <p>Learn to recite the Quran with AI-powered feedback</p>
+                <p>Learn to recite the Quran with voice correction</p>
             </div>
 
             <div class="teacher-dashboard card">
+                <!-- Voice Status Bar -->
+                <div class="voice-status-bar">
+                    <div class="status-text">
+                        <i class="fas fa-check-circle"></i>
+                        <span>✅ Your voice is loaded: <strong>Voice 004.m4a</strong></span>
+                    </div>
+                    <button class="voice-test-btn" onclick="window.quranTeacherModule?.testYourVoice()">
+                        <i class="fas fa-play"></i> Test Voice
+                    </button>
+                </div>
+
                 <div class="teacher-stats">
                     <div class="teacher-stat">
                         <span class="stat-value" id="accuracyScore">0%</span>
@@ -377,17 +388,16 @@
                         </button>
                     </div>
                     <div class="feedback-area" id="feedbackArea">
-                        <div class="feedback-item correct">✅ Excellent pronunciation!</div>
-                        <div class="feedback-item" style="display:none;">⚠️ Try again</div>
+                        <div class="feedback-item hint">🎙️ Click "Start Recording" and recite the verse</div>
                     </div>
                 </div>
 
                 <div class="progress-tracker">
                     <h4>Memorization Progress</h4>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: 45%;"></div>
+                        <div class="progress-fill" style="width: 0%;"></div>
                     </div>
-                    <span class="progress-text">45% Complete</span>
+                    <span class="progress-text">0% Complete</span>
                 </div>
             </div>
         </section>
@@ -395,28 +405,27 @@
         <!-- ===== VOICE ASSISTANT SECTION ===== -->
         <section id="voice-assistant" class="section">
             <div class="section-header">
-                <h2>🗣️ Your Voice Assistant</h2>
-                <p>Get personalized feedback in your own voice</p>
+                <h2>🗣️ Voice Assistant</h2>
+                <p>Get personalized feedback with your voice</p>
             </div>
 
             <div class="voice-assistant-card card">
-                <div class="voice-setup">
-                    <h3>Voice Profile Setup</h3>
-                    <p>Record your voice for personalized feedback</p>
-                    <button class="voice-record-btn" id="setupVoice">
-                        <i class="fas fa-microphone"></i> Record My Voice
-                    </button>
-                    <div class="voice-status" id="voiceStatus">
-                        <span class="status-dot"></span>
-                        <span>Voice profile not set</span>
+                <!-- Voice Status -->
+                <div class="voice-status-bar">
+                    <div class="status-text">
+                        <i class="fas fa-check-circle"></i>
+                        <span>✅ Your voice is loaded: <strong>Voice 004.m4a</strong></span>
                     </div>
+                    <button class="voice-test-btn" onclick="window.voiceAssistantModule?.playYourVoice()">
+                        <i class="fas fa-play"></i> Test Voice
+                    </button>
                 </div>
 
                 <div class="voice-chat">
                     <div class="voice-messages" id="voiceMessages">
                         <div class="voice-message bot">
                             <div class="message-content">
-                                <p>Assalamu Alaikum! I'm your voice assistant. I'll help you with recitation and provide encouraging feedback.</p>
+                                <p>Assalamu Alaikum! I'm your voice assistant. Your teacher's voice is loaded and ready to help you with recitation. 🎙️</p>
                                 <div class="encouragement-phrases">
                                     <span>💚 "MashaAllah, excellent!"</span>
                                     <span>💛 "Good effort, keep going!"</span>
@@ -1024,4 +1033,4 @@
     <script src="js/quran-teacher.js"></script>
     <script src="js/ramadan.js"></script>
 </body>
-                </html>
+                                     </html>
