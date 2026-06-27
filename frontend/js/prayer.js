@@ -24,7 +24,6 @@ class PrayerModule {
         this.setupPrayerTracker();
         this.initQibla();
         this.setupEventListeners();
-        this.checkFriday();
     }
 
     async loadPrayerTimes() {
@@ -57,9 +56,7 @@ class PrayerModule {
         const container = document.getElementById('prayerTimesList');
         if (!container) return;
 
-        // Find next prayer
         const nextPrayer = this.getNextPrayer();
-        const nextName = nextPrayer ? this.prayerDisplayNames[nextPrayer] : '';
 
         container.innerHTML = this.prayerNames.map(name => {
             const time = this.prayerTimes[name] || '--:--';
@@ -71,12 +68,6 @@ class PrayerModule {
                 </div>
             `;
         }).join('');
-
-        // Update next prayer name
-        const nextNameEl = document.getElementById('nextPrayerName');
-        if (nextNameEl && nextPrayer) {
-            nextNameEl.textContent = this.prayerDisplayNames[nextPrayer];
-        }
     }
 
     getNextPrayer() {
@@ -109,7 +100,6 @@ class PrayerModule {
             }
         }
 
-        // If no prayer found, use Fajr next day
         if (!next) {
             const fajrTime = this.prayerTimes.fajr;
             if (fajrTime) {
@@ -138,7 +128,7 @@ class PrayerModule {
 
     updateCountdown() {
         const now = new Date();
-        let nextPrayer = this.getNextPrayer();
+        const nextPrayer = this.getNextPrayer();
         if (!nextPrayer) return;
 
         const timeStr = this.prayerTimes[nextPrayer];
@@ -157,7 +147,6 @@ class PrayerModule {
         const prayerDate = new Date(now);
         prayerDate.setHours(hours, minutes, 0, 0);
 
-        // If prayer time is in the past, set to next day
         if (prayerDate <= now) {
             prayerDate.setDate(prayerDate.getDate() + 1);
         }
@@ -167,9 +156,8 @@ class PrayerModule {
             const h = String(Math.floor(diff / 3600)).padStart(2, '0');
             const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
             const s = String(diff % 60).padStart(2, '0');
-            document.getElementById('prayerCountdown').textContent = `${h}:${m}:${s}`;
-        } else {
-            document.getElementById('prayerCountdown').textContent = '00:00:00';
+            const countdownEl = document.getElementById('prayerCountdown');
+            if (countdownEl) countdownEl.textContent = `${h}:${m}:${s}`;
         }
     }
 
@@ -199,7 +187,6 @@ class PrayerModule {
             });
         });
 
-        // Reset button
         document.getElementById('resetPrayerTracker')?.addEventListener('click', () => {
             const today = new Date().toISOString().split('T')[0];
             this.trackedPrayers[today] = [];
@@ -209,6 +196,7 @@ class PrayerModule {
                 cb.parentElement.classList.remove('checked');
             });
             this.updatePrayerProgress();
+            showToast('🔄 Prayer tracker reset');
         });
 
         this.updatePrayerProgress();
@@ -223,9 +211,8 @@ class PrayerModule {
             this.trackedPrayers[today].push(name);
             localStorage.setItem('trackedPrayers', JSON.stringify(this.trackedPrayers));
             
-            // Check if all 5 prayers are completed
             if (this.trackedPrayers[today].length === 5) {
-                this.showNotification('🎉 All 5 prayers completed today!');
+                showToast('🎉 All 5 prayers completed today! MashaAllah!');
             }
         }
     }
@@ -254,7 +241,6 @@ class PrayerModule {
             navigator.geolocation.getCurrentPosition((position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                // Mecca coordinates
                 const meccaLat = 21.4225;
                 const meccaLon = 39.8262;
                 
@@ -279,47 +265,23 @@ class PrayerModule {
         return dirs[index];
     }
 
-    checkFriday() {
-        const today = new Date();
-        const day = today.getDay();
-        const fridayReminder = document.getElementById('fridayReminder');
-        
-        if (day === 5) { // Friday
-            fridayReminder.style.display = 'block';
-        } else {
-            fridayReminder.style.display = 'block';
-            fridayReminder.querySelector('h4').textContent = 'Next Jumu\'ah: Friday';
-            fridayReminder.querySelector('p').textContent = 'Set a reminder for Friday prayer';
-        }
-    }
-
     setupEventListeners() {
-        // Friday reminder button
-        document.getElementById('fridayReminderBtn')?.addEventListener('click', () => {
-            this.showNotification('🕌 Friday prayer reminder set for 1:30 PM');
-        });
-
-        // Find mosques
         document.getElementById('findMosques')?.addEventListener('click', () => {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    this.showNotification('📍 Finding mosques near your location...');
-                    // In production, use a mosque API
+                navigator.geolocation.getCurrentPosition(() => {
+                    showToast('📍 Finding mosques near your location...');
                 }, () => {
-                    this.showNotification('⚠️ Please enable location to find nearby mosques');
+                    showToast('⚠️ Please enable location to find nearby mosques');
                 });
             } else {
-                this.showNotification('⚠️ Location services not available');
+                showToast('⚠️ Location services not available');
             }
         });
 
-        // Check for adhan time
         setInterval(() => {
             const now = new Date();
-            const minutes = now.getMinutes();
             const seconds = now.getSeconds();
             
-            // Check at the start of each minute
             if (seconds === 0) {
                 for (const [name, time] of Object.entries(this.prayerTimes)) {
                     if (time) {
@@ -339,53 +301,18 @@ class PrayerModule {
 
     showAdhan(prayerName) {
         const displayName = this.prayerDisplayNames[prayerName] || prayerName;
-        this.showNotification(`🕌 ${displayName} prayer time!`);
+        showToast(`🕌 ${displayName} prayer time!`);
         
-        // Play adhan sound (in production)
-        // const audio = new Audio('adhan.mp3');
-        // audio.play();
-    }
-
-    showNotification(message) {
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('Muslim App', {
-                body: message,
+                body: `🕌 ${displayName} prayer time!`,
                 icon: '🕌'
             });
-        } else if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
         }
-        // Also show in UI
-        const existing = document.querySelector('.toast-notification');
-        if (existing) existing.remove();
-        
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-card);
-            padding: 12px 24px;
-            border-radius: var(--radius-full);
-            box-shadow: var(--shadow-hover);
-            z-index: 9999;
-            font-weight: 500;
-            border-left: 4px solid var(--primary);
-        `;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s';
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
     }
 }
 
-// Initialize when DOM is ready
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.prayerModule = new PrayerModule();
 });
