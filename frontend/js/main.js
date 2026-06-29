@@ -1,10 +1,112 @@
 // ============================================
-// MAIN.JS - CORE FUNCTIONALITY
-// Theme, Sidebar, Navigation, Utilities
+// MAIN.JS - Complete App Logic
 // ============================================
 
 // ============================================
-// UTILITY FUNCTIONS
+// AUTH FUNCTIONS
+// ============================================
+
+// User data (in production, this would come from backend)
+let currentUser = null;
+
+function showRegister() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('registerScreen').style.display = 'block';
+}
+
+function showLogin() {
+    document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+}
+
+// Login
+document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (username && password) {
+        // Simulate login
+        currentUser = { username, name: username };
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        showApp();
+        showToast('✅ Welcome back, ' + username + '!');
+    } else {
+        showToast('⚠️ Please fill in all fields');
+    }
+});
+
+// Register
+document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('regUsername').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    
+    if (username && email && password) {
+        // Simulate register
+        currentUser = { username, name: username, email };
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        showApp();
+        showToast('🎉 Welcome, ' + username + '!');
+    } else {
+        showToast('⚠️ Please fill in all fields');
+    }
+});
+
+// Password toggle
+document.querySelectorAll('.toggle-password').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            input.type = 'password';
+            this.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    });
+});
+
+// Show app after login
+function showApp() {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'block';
+    
+    // Update user info
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        document.getElementById('userName').textContent = user.name || user.username;
+        document.getElementById('profileName').textContent = user.name || user.username;
+        document.getElementById('profileEmail').textContent = user.email || 'user@email.com';
+        document.getElementById('userInitial').textContent = (user.name || user.username).charAt(0).toUpperCase();
+        document.getElementById('profileInitial').textContent = (user.name || user.username).charAt(0).toUpperCase();
+    }
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('user');
+    currentUser = null;
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('authContainer').style.display = 'block';
+    showLogin();
+    showToast('👋 Logged out');
+}
+window.logout = logout;
+
+// Show profile
+function showProfile() {
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById('profile').classList.add('active');
+    document.getElementById('pageTitle').textContent = '👤 Profile';
+    document.getElementById('sidebar')?.classList.remove('open');
+}
+window.showProfile = showProfile;
+
+// ============================================
+// TOAST NOTIFICATION
 // ============================================
 
 function showToast(message, duration = 3000) {
@@ -28,7 +130,6 @@ function showToast(message, duration = 3000) {
         border: 1px solid var(--border-color);
         max-width: 90%;
         text-align: center;
-        animation: fadeIn 0.3s ease;
     `;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -38,18 +139,6 @@ function showToast(message, duration = 3000) {
         toast.style.transition = 'opacity 0.3s';
         setTimeout(() => toast.remove(), 300);
     }, duration);
-}
-
-function getAuthToken() {
-    return localStorage.getItem('authToken');
-}
-
-function setAuthToken(token) {
-    if (token) {
-        localStorage.setItem('authToken', token);
-    } else {
-        localStorage.removeItem('authToken');
-    }
 }
 
 // ============================================
@@ -132,14 +221,14 @@ function initNavigation() {
         'quran-teacher': '🎙️ AI Teacher',
         'voice-assistant': '🗣️ Voice Assistant',
         hadith: '📚 Hadith',
-        duas: '🤲 Duas & Adhkar',
+        duas: '🤲 Duas',
         prayer: '🕌 Prayer',
         learning: '🎓 Learning',
         videos: '🎥 Videos',
         audio: '🎧 Audio',
         community: '👨‍👩‍👧 Community',
         ramadan: '🌙 Ramadan',
-        hajj: '🕋 Hajj & Umrah',
+        hajj: '🕋 Hajj',
         kids: '👶 Kids',
         ai: '🤖 AI Assistant',
         profile: '👤 Profile',
@@ -159,7 +248,6 @@ function initNavigation() {
             const targetSection = document.getElementById(section);
             if (targetSection) {
                 targetSection.classList.add('active');
-                console.log('✅ Section opened:', section);
             }
             
             pageTitle.textContent = titleMap[section] || section;
@@ -172,51 +260,10 @@ function initNavigation() {
 }
 
 // ============================================
-// LANGUAGE & DATE
+// DAILY CONTENT
 // ============================================
 
-function initLanguage() {
-    const langToggle = document.getElementById('languageToggle');
-    if (langToggle) {
-        langToggle.addEventListener('click', () => {
-            const select = document.getElementById('languageSelect');
-            if (select) {
-                const languages = ['en', 'ar', 'om', 'am', 'so', 'ur', 'tr', 'fr', 'id'];
-                const currentIndex = languages.indexOf(select.value);
-                const nextIndex = (currentIndex + 1) % languages.length;
-                select.value = languages[nextIndex];
-                select.dispatchEvent(new Event('change'));
-                showToast('🌍 Language changed');
-            }
-        });
-    }
-    
-    const langSelect = document.getElementById('languageSelect');
-    if (langSelect) {
-        langSelect.addEventListener('change', () => {
-            localStorage.setItem('language', langSelect.value);
-            showToast('🌍 Language saved');
-        });
-        const savedLang = localStorage.getItem('language');
-        if (savedLang) {
-            langSelect.value = savedLang;
-        }
-    }
-}
-
-function initIslamicDate() {
-    const dateEl = document.getElementById('islamicDate');
-    if (dateEl) {
-        const months = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', 'Sha\'ban', 'Ramadan', 'Shawwal', 'Dhul-Qadah', 'Dhul-Hijjah'];
-        const date = new Date();
-        const islamicDay = Math.floor((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) % 30 + 1;
-        const islamicMonth = Math.floor(((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) / 30) % 12;
-        dateEl.textContent = `${islamicDay} ${months[islamicMonth]} 1446 AH`;
-    }
-}
-
 function initDailyContent() {
-    // Daily Verse
     const verses = [
         { arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: '"Indeed, with hardship comes ease"', ref: 'Surah Ash-Sharh 94:6' },
         { arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', translation: '"And whoever fears Allah, He will make a way out for him"', ref: 'Surah At-Talaq 65:2' }
@@ -232,7 +279,6 @@ function initDailyContent() {
         if (refEl) refEl.textContent = verse.ref;
     }
     
-    // Daily Hadith
     const hadiths = [
         { text: '"The best of you are those who are best to their families"', ref: 'Sunan Ibn Majah 1977' },
         { text: '"Whoever believes in Allah and the Last Day, let him speak good or remain silent"', ref: 'Sahih Bukhari 6018' }
@@ -246,7 +292,6 @@ function initDailyContent() {
         if (refEl) refEl.textContent = hadith.ref;
     }
     
-    // Daily Dua
     const duas = [
         { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا', translation: '"O Allah, I ask You for beneficial knowledge"' },
         { arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ', translation: '"O Allah, I ask You for well-being"' }
@@ -260,6 +305,10 @@ function initDailyContent() {
         if (transEl) transEl.textContent = dua.translation;
     }
 }
+
+// ============================================
+// PRAYER COUNTDOWN
+// ============================================
 
 function initPrayerCountdown() {
     const times = {
@@ -340,25 +389,251 @@ function initPrayerCountdown() {
     setInterval(updateCountdown, 1000);
 }
 
-function checkAPIStatus() {
-    const dot = document.querySelector('.status-dot');
-    if (!dot) return;
-    
-    try {
-        fetch('https://muslim-app-8ccm.onrender.com/api/health')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'OK') {
-                    dot.style.background = '#22c55e';
-                } else {
-                    dot.style.background = '#ef4444';
-                }
-            })
-            .catch(() => {
-                dot.style.background = '#ef4444';
+// ============================================
+// ISLAMIC DATE
+// ============================================
+
+function initIslamicDate() {
+    const dateEl = document.getElementById('islamicDate');
+    if (dateEl) {
+        const months = ['Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal', 'Jumada al-Thani', 'Rajab', 'Sha\'ban', 'Ramadan', 'Shawwal', 'Dhul-Qadah', 'Dhul-Hijjah'];
+        const date = new Date();
+        const islamicDay = Math.floor((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) % 30 + 1;
+        const islamicMonth = Math.floor(((date - new Date(2024, 6, 7)) / (1000 * 60 * 60 * 24)) / 30) % 12;
+        dateEl.textContent = `${islamicDay} ${months[islamicMonth]} 1446 AH`;
+    }
+}
+
+// ============================================
+// QURAN MODULE
+// ============================================
+
+class QuranModule {
+    constructor() {
+        this.surahs = [];
+        this.init();
+    }
+
+    async init() {
+        await this.loadSurahs();
+        this.renderSurahList();
+        this.setupEvents();
+    }
+
+    async loadSurahs() {
+        try {
+            const response = await fetch('https://api.alquran.cloud/v1/meta');
+            const data = await response.json();
+            if (data.code === 200) {
+                this.surahs = data.data.surahs.slice(0, 20);
+            }
+        } catch (error) {
+            // Fallback
+            this.surahs = [];
+            for (let i = 1; i <= 10; i++) {
+                this.surahs.push({ number: i, name: `Surah ${i}`, englishName: `Surah ${i}`, verses: 7 });
+            }
+        }
+        this.renderSurahList();
+    }
+
+    renderSurahList() {
+        const container = document.getElementById('surahList');
+        if (!container) return;
+
+        container.innerHTML = this.surahs.map(surah => `
+            <div class="surah-item" data-surah="${surah.number}">
+                <div class="surah-info">
+                    <span class="surah-number">${surah.number}</span>
+                    <div>
+                        <div class="surah-name">${surah.name}</div>
+                        <div class="surah-english">${surah.englishName}</div>
+                    </div>
+                </div>
+                <div class="surah-verses">${surah.verses} verses</div>
+            </div>
+        `).join('');
+
+        container.querySelectorAll('.surah-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const num = parseInt(item.dataset.surah);
+                this.loadSurah(num);
             });
-    } catch (error) {
-        dot.style.background = '#ef4444';
+        });
+    }
+
+    async loadSurah(number) {
+        const viewer = document.getElementById('quranViewer');
+        const textContainer = document.getElementById('quranText');
+        const title = document.getElementById('viewerTitle');
+
+        try {
+            const response = await fetch(`https://api.alquran.cloud/v1/surah/${number}/en`);
+            const data = await response.json();
+            if (data.code === 200) {
+                const surah = data.data;
+                title.textContent = `${surah.name} (${surah.englishName})`;
+
+                textContainer.innerHTML = `
+                    <div style="text-align:center;padding:10px 0 20px;border-bottom:1px solid var(--border-color);">
+                        <p style="color:var(--text-muted);font-size:14px;">${surah.numberOfAyahs} verses</p>
+                    </div>
+                    ${surah.ayahs.map(ayah => `
+                        <div class="ayah">
+                            <span class="ayah-number">${ayah.numberInSurah}</span>
+                            <div class="ayah-text">${ayah.text}</div>
+                        </div>
+                    `).join('')}
+                `;
+
+                viewer.classList.add('active');
+            }
+        } catch (error) {
+            showToast('❌ Error loading surah');
+        }
+    }
+
+    setupEvents() {
+        document.getElementById('closeViewer')?.addEventListener('click', () => {
+            document.getElementById('quranViewer').classList.remove('active');
+        });
+    }
+}
+
+// ============================================
+// QURAN TEACHER
+// ============================================
+
+class QuranTeacherModule {
+    constructor() {
+        this.verses = [
+            { arabic: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', translation: 'In the name of Allah' },
+            { arabic: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', translation: 'Praise be to Allah' }
+        ];
+        this.currentVerseIndex = 0;
+        this.init();
+    }
+
+    init() {
+        this.showVerse();
+        this.setupEvents();
+        this.initSpeechRecognition();
+    }
+
+    initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            this.recognition.lang = 'ar-SA';
+            this.recognition.continuous = false;
+            this.recognition.interimResults = true;
+
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                this.processRecitation(transcript);
+            };
+
+            this.recognition.onend = () => {
+                this.isRecording = false;
+                document.getElementById('startRecording').style.display = 'inline-flex';
+                document.getElementById('stopRecording').style.display = 'none';
+            };
+        }
+    }
+
+    setupEvents() {
+        document.getElementById('startRecording')?.addEventListener('click', () => {
+            this.startRecording();
+        });
+
+        document.getElementById('stopRecording')?.addEventListener('click', () => {
+            this.stopRecording();
+        });
+    }
+
+    startRecording() {
+        if (!this.recognition) {
+            showToast('⚠️ Speech recognition not available');
+            return;
+        }
+
+        this.isRecording = true;
+        document.getElementById('startRecording').style.display = 'none';
+        document.getElementById('stopRecording').style.display = 'inline-flex';
+        document.getElementById('feedbackArea').innerHTML = '<div class="feedback-item hint">🎙️ Listening...</div>';
+        
+        try {
+            this.recognition.start();
+        } catch (e) {}
+    }
+
+    stopRecording() {
+        if (this.recognition) {
+            try { this.recognition.stop(); } catch (e) {}
+        }
+        this.isRecording = false;
+        document.getElementById('startRecording').style.display = 'inline-flex';
+        document.getElementById('stopRecording').style.display = 'none';
+    }
+
+    processRecitation(transcript) {
+        const currentVerse = this.verses[this.currentVerseIndex];
+        const correctText = currentVerse.arabic;
+        
+        const similarity = this.calculateSimilarity(transcript, correctText);
+        const accuracy = Math.round(similarity * 100);
+        
+        let feedback = '';
+        let feedbackClass = '';
+        
+        if (accuracy >= 80) {
+            feedback = `✅ Excellent! ${accuracy}% accurate. MashaAllah!`;
+            feedbackClass = 'correct';
+            this.currentVerseIndex = (this.currentVerseIndex + 1) % this.verses.length;
+            setTimeout(() => this.showVerse(), 1500);
+        } else if (accuracy >= 60) {
+            feedback = `📖 Good effort! ${accuracy}% accurate. Keep going!`;
+            feedbackClass = 'hint';
+        } else {
+            feedback = `🔄 Let's try again. Focus on pronunciation.`;
+            feedbackClass = 'incorrect';
+        }
+        
+        document.getElementById('feedbackArea').innerHTML = `
+            <div class="feedback-item ${feedbackClass}">
+                ${feedback}
+                <br><small style="font-size:12px;">You said: "${transcript}"</small>
+                ${accuracy < 80 ? `<br><small style="font-size:12px;">🎯 Correct: "${correctText}"</small>` : ''}
+            </div>
+        `;
+    }
+
+    calculateSimilarity(text1, text2) {
+        const chars1 = text1.split('');
+        const chars2 = text2.split('');
+        const maxLen = Math.max(chars1.length, chars2.length);
+        if (maxLen === 0) return 0;
+        
+        let matches = 0;
+        for (let i = 0; i < Math.min(chars1.length, chars2.length); i++) {
+            if (chars1[i] === chars2[i]) matches++;
+        }
+        
+        return matches / maxLen;
+    }
+
+    showVerse() {
+        const verse = this.verses[this.currentVerseIndex];
+        const container = document.getElementById('currentVerse');
+        if (container) {
+            container.innerHTML = `
+                <p class="arabic">${verse.arabic}</p>
+                <p class="translation">"${verse.translation}"</p>
+            `;
+        }
+        document.getElementById('feedbackArea').innerHTML = `
+            <div class="feedback-item hint">🎙️ Click Start and recite the verse</div>
+        `;
     }
 }
 
@@ -369,18 +644,20 @@ function checkAPIStatus() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🕌 Pro Max Islamic App loaded!');
     
+    // Check if user is logged in
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        currentUser = user;
+        showApp();
+    }
+    
     initTheme();
     initSidebar();
     initNavigation();
-    initLanguage();
-    initIslamicDate();
     initDailyContent();
     initPrayerCountdown();
-    checkAPIStatus();
+    initIslamicDate();
     
-    setInterval(checkAPIStatus, 30000);
-    
-    window.showToast = showToast;
-    window.getAuthToken = getAuthToken;
-    window.setAuthToken = setAuthToken;
+    window.quranModule = new QuranModule();
+    window.quranTeacherModule = new QuranTeacherModule();
 });
